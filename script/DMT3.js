@@ -102,7 +102,7 @@ class DMT3{
         this.computeUL();
         this.computeStratification();
         this.findCritical();
-        // this.findPair();
+        this.findPair();
         this.drawFaces();
         this.drawEdges();
         this.drawVertices();
@@ -110,10 +110,18 @@ class DMT3{
 
     updateStratification(){
         this.markStratification = true;
-        let color = d3.scaleOrdinal(d3.schemeCategory10)
+        let color = d3.scaleOrdinal(d3.schemeCategory10);
+        let color_used = [];
         for(let i=0; i<this.stratification.length; i++){
             let sKeyArray = this.stratification[i];
             let color_i = color(i);
+            let step = 0;
+            while(color_used.indexOf(color_i)!=-1 || step<20){
+                color_i = color(i);
+                step += 1;
+            }
+            console.log(color_i)
+            color_used.push(color_i);
             sKeyArray.forEach(sKey=>{
                 if(sKey[0]==='v'){
                     this.canvas.select('#'+sKey)
@@ -170,6 +178,186 @@ class DMT3{
         })
 
     }
+
+    updatePair(){
+        if(this.markStratification){
+            this.canvas.selectAll('circle').attr('fill', 'Gainsboro');
+            this.canvas.selectAll('path').attr('stroke','Silver');
+            this.markStratification = false;
+        }
+        this.drawArrow();
+
+    }
+
+    drawArrow() {
+        let xScale = this.xScale;
+        let yScale = this.yScale;
+
+        let ve = this.vegroup.selectAll('path')
+            .data(this.noncriticalPair.vePair)
+        ve.exit().remove();
+        ve = ve.enter().append('path').merge(ve)
+            .attr('id', function (d) {
+                return 've'+d[0].id+'to'+d[1].id;
+            })
+            .attr('class', 'arrowBody')
+            .attr('marker-end', 'url(#arrowhead)')
+            .attr('d', function (d) {
+                let startx = xScale(d[0].xcoord)
+                let starty = yScale(d[0].ycoord)
+                let endx = d[1].textcoord[0]
+                let endy = d[1].textcoord[1]
+                let path = d3.path();
+                path.moveTo(startx, starty);
+                path.lineTo(endx, endy);
+                return path.toString()
+            })
+
+        let ef = this.efgroup.selectAll('line')
+            .data(this.noncriticalPair.efPair)
+        ef.exit().remove();
+        ef = ef.enter().append('line').merge(ef)
+            .attr('id', function (d) {
+                return 'ef'+d[0].id+'to'+d[1].id;
+            })
+            .attr('class', 'arrowBody')
+            .attr('marker-end', 'url(#arrowhead)')
+            .attr('x1', function (d) {
+                let start = d[0].start.xcoord;
+                let end = d[0].end.xcoord;
+                return xScale((start+end)/2);
+            })
+            .attr('y1', function (d) {
+                let start = d[0].start.ycoord;
+                let end = d[0].end.ycoord;
+                return yScale((start+end)/2);
+            })
+            .attr('x2', function (d) {
+                let sum = 0;
+                for (let p of d[1].point) {
+                    sum += p.xcoord;
+                }
+                return xScale(sum/d[1].point.length);
+            })
+            .attr('y2', function (d) {
+                let sum = 0;
+                for (let p of d[1].point) {
+                    sum += p.ycoord;
+                }
+                return yScale(sum/d[1].point.length);
+            })
+    }
+
+    vePairRemove(){
+        if(this.noncriticalPair.vePair.length === 0){
+            return
+        }
+        let vePair2Remove = this.noncriticalPair.vePair[0];
+        console.log("vertex2remove",vePair2Remove[0]);
+        console.log("edge2remove",vePair2Remove[1]);
+        // remove vertex
+        let vKey = 'v'+vePair2Remove[0].id;
+        this.vertices[vKey].coface.forEach(eKey=>{
+            this.edges[eKey].face.splice(this.edges[eKey].face.indexOf(vKey),1);
+        })
+        let edge2reassign = [];
+        this.vertices[vKey].arms.forEach(e=>{
+            if(e.start.id === vePair2Remove[0].id){
+                e.start = undefined;
+            } else if(e.end.id === vePair2Remove[0].id){
+                e.end = undefined;
+            }
+            if(e.id != vePair2Remove[1].id){
+                edge2reassign.push(e);
+            }
+        })
+
+        delete this.vertices[vKey];
+        // remove edge
+        let eKey = 'e'+vePair2Remove[1].id;
+        this.edges[eKey].face.forEach(vKey=>{
+            this.vertices[vKey].coface.splice(this.vertices[vKey].coface.indexOf(eKey),1);
+        })
+        this.edges[eKey].coface.forEach(fKey=>{
+            this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
+        })
+        let vertex2reassign; // an edge only connects with 2 vertices
+        if(this.edges[eKey].start!=undefined){
+            let vKey = 'v'+this.edges[eKey].start.id;
+            for(let i=0; i<this.vertices[vKey].arms.length; i++){
+                if(this.vertices[vKey].arms[i].id === vePair2Remove[1].id){
+                    this.vertices[vKey].arms.splice(i,1);
+                }
+            }
+            vertex2reassign = this.vertices[vKey];
+        } else {
+            let vKey = 'v'+this.edges[eKey].end.id;
+            for(let i=0; i<this.vertices[vKey].arms.length; i++){
+                if(this.vertices[vKey].arms[i].id === vePair2Remove[1].id){
+                    this.vertices[vKey].arms.splice(i,1);
+                }
+            }
+            vertex2reassign = this.vertices[vKey];
+        }
+        this.edges[eKey].wings.forEach(f=>{
+            for(let i=0; i<f.line.length; i++){
+                if(f.line[i].id === vePair2Remove[1].id){
+                    f.line.splice(i,1);
+                }
+            }
+        })
+        delete this.edges[eKey];
+        this.noncriticalPair.vePair.splice(0,1);
+        this.reassignCoord(vertex2reassign, edge2reassign);
+        this.reassignTopo();
+        this.computeUL();
+        this.computeStratification();
+        this.findCritical();
+        this.findPair();
+        this.drawFaces();
+        this.drawEdges();
+        this.drawVertices();
+        this.updateViolator();
+        this.updateCritical();
+        this.updatePair();
+
+    }
+
+    reassignCoord(vertex2reassign, edge2reassign){
+        edge2reassign.forEach(e=>{
+            if(e.start === undefined){
+                e.start = vertex2reassign;
+            } else {
+                e.end = vertex2reassign;
+            }
+            e.face.push('v'+vertex2reassign.id);
+            vertex2reassign.arms.push(e);
+            vertex2reassign.coface.push('e'+e.id);
+        })
+        // **** faces ****
+    }
+
+    reassignTopo(){
+        for(let vKey in this.vertices){
+            let v = this.vertices[vKey];
+            v.face = [];
+            v.coface = [];
+            v.arms.forEach(e=>{v.coface.push('e'+e.id);});
+        }
+        for(let eKey in this.edges){
+            let e = this.edges[eKey];
+            e.face = ['v'+e.start.id, 'v'+e.end.id];
+            e.coface = [];
+            e.wings.forEach(f=>{e.coface.push('f'+f.id);});
+        }
+        for(let fKey in this.faces){
+            let f = this.faces[fKey];
+            f.face = [];
+            f.coface = [];
+            f.line.forEach(e=>{f.face.push('e'+e.id);})
+        }
+    }
+
 
     drawFaces() {
         let xScale = this.xScale;
@@ -293,36 +481,60 @@ class DMT3{
             let v = this.vertices[vKey];
             let uCount = 0;
             let lCount = 0;
+            let uCount_detail = [];
+            let lCount_detail = [];
             v.coface.forEach(eKey=>{
-                if(this.edges[eKey].value <= v.value){ uCount += 1; }
+                if(this.edges[eKey].value <= v.value){ 
+                    uCount += 1;
+                    uCount_detail.push(eKey);
+                }
             })
             this.vertices[vKey].uCount = uCount;
             this.vertices[vKey].lCount = lCount;
+            this.vertices[vKey].uCount_detail = uCount_detail;
+            this.vertices[vKey].lCount_detail = lCount_detail;
         }
 
         for(let eKey in this.edges){
             let e = this.edges[eKey];
             let uCount = 0;
             let lCount = 0;
+            let uCount_detail = [];
+            let lCount_detail = [];
             e.face.forEach(vKey=>{
-                if(this.vertices[vKey].value >= e.value){ lCount += 1; }
+                if(this.vertices[vKey].value >= e.value){ 
+                    lCount += 1;
+                    lCount_detail.push(vKey);
+                }
             })
             e.coface.forEach(fKey=>{
-                if(this.faces[fKey].value <= e.value){ uCount += 1; }
+                if(this.faces[fKey].value <= e.value){ 
+                    uCount += 1;
+                    uCount_detail.push(fKey);
+                }
             })
             this.edges[eKey].uCount = uCount;
             this.edges[eKey].lCount = lCount;
+            this.edges[eKey].uCount_detail = uCount_detail;
+            this.edges[eKey].lCount_detail = lCount_detail;
         }
 
         for(let fKey in this.faces){
             let f = this.faces[fKey];
             let uCount = 0;
             let lCount = 0;
+            let uCount_detail = [];
+            let lCount_detail = [];
             f.face.forEach(eKey=>{
-                if(this.edges[eKey].value >= f.value){ lCount += 1; }
+                if(this.edges[eKey].value >= f.value){ 
+                    lCount += 1;
+                    lCount_detail.push(eKey);
+                }
             })
             this.faces[fKey].uCount = uCount;
             this.faces[fKey].lCount = lCount;
+            this.faces[fKey].uCount_detail = uCount_detail;
+            this.faces[fKey].lCount_detail = lCount_detail;
         }
     }
 
@@ -379,15 +591,17 @@ class DMT3{
         let efPair = [];
         for(let vKey in this.vertices){
             if(this.vertices[vKey].uCount===1){
-                vePair.push([vKey, this.vertices[vKey].coface[0]]);
+                vePair.push([this.vertices[vKey], this.edges[this.vertices[vKey].uCount_detail[0]]]);
             }
         }
         for(let eKey in this.edges){
             if(this.edges[eKey].uCount===1){
-                efPair.push([eKey, this.edges[eKey].coface[0]]);
+                efPair.push([this.edges[eKey], this.faces[this.edges[eKey].uCount_detail[0]]]);
             }
         }
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
+
+        console.log("DMT3 vepair", this.noncriticalPair.vePair)
     }
 
     computeStratification() {
@@ -470,7 +684,7 @@ class DMT3{
         for(let i=0; i<this.connectedComponents.length; i++){
             let cc = this.connectedComponents[i];
             if(cc.length===1){
-                this.stratification.push([cc]);
+                this.stratification.push(cc);
             } else{
                 let ccInterior = this.computeInterior(cc);
                 let ccClosure = this.computeClosure(cc);

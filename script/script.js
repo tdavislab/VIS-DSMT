@@ -30,6 +30,7 @@ function markCriticals() {
 function markPairs() {
     dmt.updatePair();
     dmt2.updatePair();
+    dmt3.updatePair();
 }
 
 function removeEFPairs() {
@@ -40,6 +41,7 @@ function removeEFPairs() {
 function removeVEPairs() {
     dmt.vePairRemove();
     dmt2.vePairRemove();
+    dmt3.vePairRemove();
 }
 
 function rollback() {

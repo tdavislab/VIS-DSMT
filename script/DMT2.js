@@ -355,6 +355,7 @@ class DMT2 {
 
         this.vePair = vePair;
         this.efPair = efPair;
+        console.log("vepair", this.vePair)
     }
 
     updateViolator() {
@@ -592,8 +593,9 @@ class DMT2 {
 
             //whether the vertex is the start point of the edge
             let isStart = true;
-            if (e.end.id == v.id)
+            if (e.end.id == v.id){
                 isStart = false;
+            }
 
             //update the vertex on the other side of the edge
             if (isStart) {
