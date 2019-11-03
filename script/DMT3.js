@@ -130,6 +130,10 @@ class DMT3{
                 } else if(sKey[0]==='e'){
                     this.canvas.select('#'+sKey)
                         .attr('stroke', color_i);
+                } else if(sKey[0]==='f'){
+                    this.canvas.select('#'+sKey)
+                        .attr('fill', color_i)
+                        .attr("opacity",0.3)
                 }
             })
         }
@@ -183,7 +187,8 @@ class DMT3{
     updateViolator(){
         if(this.markStratification){
             this.canvas.selectAll('circle').attr('fill', 'Gainsboro');
-            this.canvas.selectAll('path').attr('stroke','Silver');
+            this.canvas.select('#egroup').selectAll('path').attr('stroke','Silver');
+            this.canvas.select('#fgroup').selectAll('path').attr('fill','Gainsboro').attr('opacity',1);
             this.markStratification = false;
         }
         let violator_values = [];
@@ -467,6 +472,7 @@ class DMT3{
             .attr('id', function (d) {
                 return 'f' + d.id;
             })
+            .attr("opacity",1)
 
         let fts = this.ftgroup.selectAll('text')
             .data(facesArray);
@@ -683,10 +689,11 @@ class DMT3{
         }
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
 
-        console.log("DMT3 vepair", this.noncriticalPair.vePair)
+        console.log("DMT3 efpair", this.noncriticalPair.efPair)
     }
 
     computeStratification() {
+        // main idea: compute violators => remove violators and compute connected componnets => check frontier condition => separate frontiers
         this.stratification = [];
         this.violators = [];
         let currentViolators = this.findViolator();
@@ -701,11 +708,13 @@ class DMT3{
         this.sortByFunctionValue(violatorEdge);
         this.sortByFunctionValue(violatorFace);
 
+        // add violators to stratification
+
         while(violatorVertex.length!=0 || violatorEdge.length!=0 || violatorFace.length!=0){
             if(violatorVertex.length!=0){
                 let v = violatorVertex[0];
                 let vKey = 'v'+v.id;
-                this.stratification.push([vKey]);
+                // this.stratification.push([vKey]);
                 v.coface.forEach(eKey=>{
                     this.edges[eKey].face.splice(this.edges[eKey].face.indexOf(vKey),1);
                 })
@@ -714,7 +723,7 @@ class DMT3{
             } else if(violatorEdge.length!=0){
                 let e = violatorEdge[0];
                 let eKey = 'e'+e.id;
-                this.stratification.push([eKey]);
+                // this.stratification.push([eKey]);
                 e.face.forEach(vKey=>{
                     this.vertices[vKey].coface.splice(this.vertices[vKey].coface.indexOf(eKey),1);
                 })
@@ -727,7 +736,7 @@ class DMT3{
             } else if(violatorFace.length!=0){
                 let f = violatorFace[0];
                 let fKey = 'f'+f.id;
-                this.stratification.push([fKey]);
+                // this.stratification.push([fKey]);
                 f.face.forEach(eKey=>{
                     this.edges[eKey].coface.splice(this.edges[eKey].coface.indexOf(fKey),1);
                 })
@@ -747,9 +756,8 @@ class DMT3{
             this.sortByFunctionValue(violatorFace);
 
         }
-        console.log(currentViolators);
-        console.log(this.violators)
 
+        // compute connected components
         let unvisitedSimplex = [];
         Object.keys(this.vertices).forEach(vKey=>{
             if(this.violators.indexOf(vKey)===-1){ unvisitedSimplex.push(vKey); } 
@@ -762,19 +770,12 @@ class DMT3{
         })
 
         this.connectedComponents = this.computeAllConnectedComponents(unvisitedSimplex);// this does not include violators
+        this.violators.forEach(v=>{
+            this.connectedComponents.push([v]);
+        })
 
-        for(let i=0; i<this.connectedComponents.length; i++){
-            let cc = this.connectedComponents[i];
-            if(cc.length===1){
-                this.stratification.push(cc);
-            } else{
-                let ccInterior = this.computeInterior(cc);
-                let ccClosure = this.computeClosure(cc);
-                let ccRemaining = this.computeRemainingCC(ccInterior, ccClosure, this.violators);
-                this.stratification.push(ccInterior);
-                ccRemaining.forEach(rArray=>{ this.stratification.push(rArray); })
-            }
-        }
+        // check frontier condition
+        this.stratification = this.separateFrontiers(this.connectedComponents);
 
         // re-assign face and coface
         this.stratification.forEach(s=>{
@@ -856,68 +857,136 @@ class DMT3{
         return cc;
     }
 
-    computeInterior(cc){
-        let ccMap = {"vertex":[], "edge":[], "face":[]};
-        let ccInterior = [];
-        cc.forEach(sKey=>{
-            if(sKey[0]==='v'){ ccMap.vertex.push(sKey); }
-            else if(sKey[0]==='e'){ ccMap.edge.push(sKey); }
-            else if(sKey[0]==='f'){ ccMap.face.push(sKey); }
+    separateFrontiers(connectedComponents){
+        console.log("cc", connectedComponents)
+        let connectedComponents_closure = [];
+        connectedComponents.forEach(cc=>{
+            connectedComponents_closure.push(this.computeClosure(cc));
         })
-        if(ccMap.face.length>0){
-            let edgeMap = {};
-            ccMap.edge.forEach(eKey=>{ edgeMap[eKey] = 0; })
-            ccMap.face.forEach(fKey=>{
-                ccInterior.push(fKey);
-                this.faces[fKey].face.forEach(eKey=>{ edgeMap[eKey]+=1; })
-            })
-            for(let eKey in edgeMap){
-                if(edgeMap[eKey]>1){ ccInterior.push(eKey); }
-            }
-        } else if(ccMap.edge.length>0){ // actually ccMap.edge.length should always >0
-            ccInterior = [...cc];
-            let vertexMap = {};
-            ccMap.vertex.forEach(vKey=>{ vertexMap[vKey] = 0; })
-            ccMap.edge.forEach(eKey=>{
-                this.edges[eKey].face.forEach(vKey=>{ vertexMap[vKey]+=1; })
-            })
-            for(let vKey in vertexMap){
-                if(vertexMap[vKey]===1){ ccInterior.splice(ccInterior.indexOf(vKey),1); }
+        console.log("cc closure", connectedComponents_closure)
+        for(let i=0; i<connectedComponents.length; i++){
+            for(let j=0; j<connectedComponents_closure.length; j++){
+                let union = this.findUnion(connectedComponents[i], connectedComponents_closure[j]);
+                console.log(union)
+                console.log(this.checkFrontierCondition(connectedComponents[i],union))
+                if(this.checkFrontierCondition(connectedComponents[i],union)===false){
+                    let cc1 = [...connectedComponents[i]];
+                    union.forEach(u=>{
+                        cc1.splice(cc1.indexOf(u),1);
+                    })
+                    let cc_cc1 = this.computeAllConnectedComponents(cc1); // list of list
+                    let cc_union = this.computeAllConnectedComponents(union);
+                    connectedComponents.splice(i,1);
+                    cc_cc1.forEach(cc=>{
+                        if(connectedComponents.indexOf(cc)===-1){
+                            connectedComponents.push(cc);
+                        }
+                    })
+                    cc_union.forEach(cc=>{
+                        if(connectedComponents.indexOf(cc)===-1){
+                            connectedComponents.push(cc);
+                        }
+                    })
+                    this.separateFrontiers(connectedComponents);
+                }
             }
         }
-        return ccInterior;
+        return connectedComponents;
+
     }
+
+    checkFrontierCondition(cc,union){
+        // two possible situations that do not violate frontier condition: 1) union = fi; 2) union = cc (s_i \in s_j_closure);
+        if(union.length===0 || cc.length === union.length){
+            return true;
+        }
+        return false;
+    }
+
+    findUnion(cc1, cc2){
+        let union = [];
+        cc2.forEach(cc=>{
+            if(cc1.indexOf(cc)!=-1){
+                union.push(cc);
+            }
+        })
+        return union;
+    }
+
+    // computeInterior(cc){
+    //     let ccMap = {"vertex":[], "edge":[], "face":[]};
+    //     let ccInterior = [];
+    //     cc.forEach(sKey=>{
+    //         if(sKey[0]==='v'){ ccMap.vertex.push(sKey); }
+    //         else if(sKey[0]==='e'){ ccMap.edge.push(sKey); }
+    //         else if(sKey[0]==='f'){ ccMap.face.push(sKey); }
+    //     })
+    //     if(ccMap.face.length>0){
+    //         let edgeMap = {};
+    //         ccMap.edge.forEach(eKey=>{ edgeMap[eKey] = 0; })
+    //         ccMap.face.forEach(fKey=>{
+    //             ccInterior.push(fKey);
+    //             this.faces[fKey].face.forEach(eKey=>{ edgeMap[eKey]+=1; })
+    //         })
+    //         for(let eKey in edgeMap){
+    //             if(edgeMap[eKey]>1){ ccInterior.push(eKey); }
+    //         }
+    //     } else if(ccMap.edge.length>0){ // actually ccMap.edge.length should always >0
+    //         ccInterior = [...cc];
+    //         let vertexMap = {};
+    //         ccMap.vertex.forEach(vKey=>{ vertexMap[vKey] = 0; })
+    //         ccMap.edge.forEach(eKey=>{
+    //             this.edges[eKey].face.forEach(vKey=>{ vertexMap[vKey]+=1; })
+    //         })
+    //         for(let vKey in vertexMap){
+    //             if(vertexMap[vKey]===1){ ccInterior.splice(ccInterior.indexOf(vKey),1); }
+    //         }
+    //     }
+    //     return ccInterior;
+    // }
 
     computeClosure(cc){
         let ccMap = {"vertex":[], "edge":[], "face":[]};
-        let ccClosure = [...cc];
         cc.forEach(sKey=>{
             if(sKey[0]==='v'){ ccMap.vertex.push(sKey); }
             else if(sKey[0]==='e'){ ccMap.edge.push(sKey); }
             else if(sKey[0]==='f'){ ccMap.face.push(sKey); }
         })
-        if(ccMap.face.length>0){
-
-        } else {
-            ccMap.edge.forEach(eKey=>{
-                this.edges[eKey].face.forEach(vKey=>{
-                    if(ccClosure.indexOf(vKey)===-1){ ccClosure.push(vKey); }
-                })
+        ccMap.face.forEach(fKey=>{
+            this.faces[fKey].line.forEach(e=>{
+                let eKey = "e"+e.id;
+                if(ccMap.edge.indexOf(eKey)===-1){
+                    ccMap.edge.push(eKey);
+                }
             })
+        })
+        ccMap.edge.forEach(eKey=>{
+            let startKey = 'v'+this.edges[eKey].start.id;
+            let endKey = 'v'+this.edges[eKey].end.id;
+            if(ccMap.vertex.indexOf(startKey)===-1){
+                ccMap.vertex.push(startKey);
+            }
+            if(ccMap.vertex.indexOf(endKey)===-1){
+                ccMap.vertex.push(endKey);
+            }
+        })
+        let ccClosure = [];
+        for(let sType in ccMap){
+            ccMap[sType].forEach(sKey=>{ ccClosure.push(sKey);})
         }
         return ccClosure;    
     }
 
-    computeRemainingCC(ccInterior, ccClosure, violatorSet){
-        let unionSet = [...new Set([...ccInterior, ...violatorSet])];
-        let differenceSet = [];
-        ccClosure.forEach(sKey=>{
-            if(unionSet.indexOf(sKey)===-1){ differenceSet.push(sKey);}
-        })
-        let remainingCC = this.computeAllConnectedComponents(differenceSet);
-        return remainingCC;
+    // computeRemainingCC(ccInterior, ccClosure, violatorSet){
+    //     let unionSet = [...new Set([...ccInterior, ...violatorSet])];
+    //     let differenceSet = [];
+    //     ccClosure.forEach(sKey=>{
+    //         if(unionSet.indexOf(sKey)===-1){ differenceSet.push(sKey);}
+    //     })
+    //     let remainingCC = this.computeAllConnectedComponents(differenceSet);
+    //     return remainingCC;
 
-    }
+    // }
 
     sortByFunctionValue(array){
         function compare(a,b){
