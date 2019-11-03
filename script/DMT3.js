@@ -296,6 +296,7 @@ class DMT3{
                 let path = d3.path();
                 path.moveTo(startx, starty);
                 path.lineTo(endx, endy);
+                // let a = d3.select('#e'+d[1].id)._groups[0][0].attributes["d"]
                 return path.toString()
             })
 
@@ -335,6 +336,10 @@ class DMT3{
     }
 
     vePairRemove(){
+        if(this.noncriticalPair.efPair.length > 0){ // efpair should be removed first, otherwise the system crushes.
+            alert("Please remove Edge-Face pairs first!")
+            return
+        }
         if(this.noncriticalPair.vePair.length === 0){
             return
         }
