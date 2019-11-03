@@ -73,12 +73,21 @@
 }
 
 ul li{
-    font-size: 0.5em;
+    font-size: 0.8em;
     list-style-type:none;
 }
 
 p {
     font-size: 1.2em;
+}
+
+.strata_content {
+    font-size: 1em;
+}
+
+.strata_title{
+    font-size: 1em;
+    font-weight:bold;
 }
 
 .dropt span {position: absolute; left: -9999px;

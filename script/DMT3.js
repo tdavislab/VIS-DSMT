@@ -77,6 +77,7 @@ class DMT3{
     clear() {
         this.table.selectAll('li').remove();
         this.canvas.selectAll('g').remove();
+        d3.select("#table3_stratification").selectAll('li').remove();
 
         this.fgroup = this.canvas.append('g')
             .attr('id', 'fgroup')
@@ -100,7 +101,7 @@ class DMT3{
     draw() {
         this.clear();
         this.computeUL();
-        this.computeStratification();
+        this.computeStratification(); // also find violators
         this.findCritical();
         this.findPair();
         this.drawFaces();
@@ -120,7 +121,6 @@ class DMT3{
                 color_i = color(i);
                 step += 1;
             }
-            console.log(color_i)
             color_used.push(color_i);
             sKeyArray.forEach(sKey=>{
                 if(sKey[0]==='v'){
@@ -133,6 +133,51 @@ class DMT3{
                 }
             })
         }
+
+        this.updateStratificationText();
+    }
+
+    updateStratificationText(){
+        let stratification_text = d3.select('#stratification_info');
+        let stratificationDetails = stratification_text.selectAll('div')
+            .data(this.stratification);
+        stratificationDetails.exit().remove();
+        stratificationDetails = stratificationDetails.enter().append('div').merge(stratificationDetails)
+            .attr("id",(d,i)=>"strata_div"+i);
+            
+        for(let i=0; i<this.stratification.length; i++){
+            let strata = this.stratification[i];
+            let strata_div = d3.select("#strata_div"+i);
+
+            let titleData = [i];
+
+            let strataTitle = strata_div.selectAll(".strata_title")
+                .data(titleData);
+            strataTitle.exit().remove();
+            strataTitle = strataTitle.enter().append('li').merge(strataTitle)
+                .attr("class","strata_title")
+                .html((d)=>"Strata"+(d+1)+": ");
+            
+            let strata_values = [];
+            strata.forEach(sKey=>{
+                if(sKey[0]==='v'){
+                    strata_values.push(this.vertices[sKey].value);
+                } else if(sKey[0]==='e'){
+                    strata_values.push(this.edges[sKey].value);
+                } else if(sKey[0]==='f'){
+                    strata_values.push(this.faces[sKey].value);
+                }
+            })
+            strata_values.sort(function(a, b){return a - b});
+
+            let strataList = strata_div.selectAll('.strata_content')
+                .data(strata_values);
+            strataList.exit().remove();
+            strataList = strataList.enter().append('li').merge(strataList)
+                .attr("class","strata_content")
+                .html((d)=>'f<sup>-1</sup>('+d+')');
+        }
+
     }
 
     updateViolator(){
@@ -141,20 +186,34 @@ class DMT3{
             this.canvas.selectAll('path').attr('stroke','Silver');
             this.markStratification = false;
         }
+        let violator_values = [];
         this.violators.forEach(sKey=>{
             if(sKey[0]==='v'){
                 this.canvas.select('#'+sKey)
                     .attr('fill','LightCoral')
                     .attr('stroke','red');
+                violator_values.push(this.vertices[sKey].value);
 
             } else if(sKey[0]==='e'){
                 this.canvas.select('#'+sKey)
                     .attr('stroke','LightCoral');
+                violator_values.push(this.edges[sKey].value);
             } else if(sKey[0]==='f'){
                 this.canvas.select('#'+sKey)
                     .attr('fill', 'LightCoral');
+                violator_values.push(this.faces[sKey].value);
             }
         })
+
+        let violator_text = this.table.select('#violator3');
+        let violatorList = violator_text.selectAll('li')
+            .data(violator_values);
+        violatorList.exit().remove();
+        violatorList = violatorList.enter().append('li').merge(violatorList)
+            .html(function (d) {
+                return 'f<sup>-1</sup>('+d+')';
+            })
+
     }
 
     updateCritical(){
@@ -163,20 +222,32 @@ class DMT3{
             this.canvas.selectAll('path').attr('stroke','Silver');
             this.markStratification = false;
         }
+        let critical_values = []
         this.criticalPoints.vertex.forEach(vKey=>{
             this.canvas.select('#'+vKey)
                 .attr('fill','Gold')
                 .attr('stroke','Goldenrod');
+            critical_values.push(this.vertices[vKey].value);
         })
         this.criticalPoints.edge.forEach(eKey=>{
             this.canvas.select('#'+eKey)
                 .attr('stroke','Gold');
+            critical_values.push(this.edges[eKey].value);
         })
         this.criticalPoints.face.forEach(fKey=>{
             this.canvas.select('#'+fKey)
                 .attr('fill','Khaki');
+            critical_values.push(this.faces[fKey].value);
         })
 
+        let critical_text = this.table.select('#critical3');
+        let criticalList = critical_text.selectAll('li')
+            .data(critical_values)
+        criticalList.exit().remove();
+        criticalList = criticalList.enter().append('li').merge(criticalList)
+            .html(function (d) {
+                return 'f<sup>-1</sup>(' + d + ')';
+            })
     }
 
     updatePair(){
@@ -186,6 +257,16 @@ class DMT3{
             this.markStratification = false;
         }
         this.drawArrow();
+
+        let noncritical_values = this.noncriticalPair.vePair.concat(this.noncriticalPair.efPair)
+        let noncritical_text = this.table.select('#noncritical3');
+        let noncriticalList = noncritical_text.selectAll('li')
+            .data(noncritical_values)
+        noncriticalList.exit().remove();
+        noncriticalList = noncriticalList.enter().append('li').merge(noncriticalList)
+            .html(function (d) {
+                return 'f<sup>-1</sup>(' + d[0].value + ') => f<sup>-1</sup>(' + d[1].value + ')';
+            })
 
     }
 
@@ -320,6 +401,7 @@ class DMT3{
         this.updateViolator();
         this.updateCritical();
         this.updatePair();
+        this.updateStratificationText();
 
     }
 
