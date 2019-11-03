@@ -339,8 +339,6 @@ class DMT3{
             return
         }
         let vePair2Remove = this.noncriticalPair.vePair[0];
-        console.log("vertex2remove",vePair2Remove[0]);
-        console.log("edge2remove",vePair2Remove[1]);
         // remove vertex
         let vKey = 'v'+vePair2Remove[0].id;
         this.vertices[vKey].coface.forEach(eKey=>{
@@ -357,8 +355,8 @@ class DMT3{
                 edge2reassign.push(e);
             }
         })
-
         delete this.vertices[vKey];
+
         // remove edge
         let eKey = 'e'+vePair2Remove[1].id;
         this.edges[eKey].face.forEach(vKey=>{
@@ -408,6 +406,71 @@ class DMT3{
         this.updatePair();
         this.updateStratificationText();
 
+    }
+
+    efPairRemove(){
+        if(this.noncriticalPair.efPair.length === 0){
+            return
+        }
+        let efPair2Remove = this.noncriticalPair.efPair[0];
+        console.log("edge2remove",efPair2Remove[0]);
+        console.log("face2remove",efPair2Remove[1]);
+
+        // remove face
+        let fKey = 'f'+efPair2Remove[1].id;
+        this.faces[fKey].face.forEach(eKey=>{
+            this.edges[eKey].coface.splice(this.edges[eKey].coface.indexOf(fKey),1)
+        })
+        this.faces[fKey].line.forEach(e=>{
+            for(let i=0; i<e.wings.length; i++){
+                if(this.faces[fKey].id === e.wings[i].id){
+                    e.wings.splice(i,1);
+                }
+            }
+        })
+        delete this.faces[fKey];
+
+        // remove edge
+        let eKey = 'e'+efPair2Remove[0].id;
+        this.edges[eKey].face.forEach(vKey=>{
+            this.vertices[vKey].coface.splice(this.vertices[vKey].coface.indexOf(eKey),1);
+        })
+        this.edges[eKey].coface.forEach(fKey=>{
+            this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
+        })
+        let v_start = this.edges[eKey].start;
+        for(let i=0; i<v_start.arms.length; i++){
+            if(this.edges[eKey].id === v_start.arms[i].id){
+                v_start.arms.splice(i,1);
+            }
+        }
+        let v_end = this.edges[eKey].end;
+        for(let i=0; i<v_end.arms.length; i++){
+            if(this.edges[eKey].id === v_end.arms[i].id){
+                v_end.arms.splice(i,1);
+            }
+        }
+        this.edges[eKey].wings.forEach(f=>{
+            for(let i=0; i<f.line.length; i++){
+                if(this.edges[eKey].id === f.line[i].id){
+                    f.line.splice(i,1);
+                }
+            }
+        })
+        delete this.edges[eKey];
+        this.noncriticalPair.efPair.splice(0,1);
+
+        this.computeUL();
+        this.computeStratification();
+        this.findCritical();
+        this.findPair();
+        this.drawFaces();
+        this.drawEdges();
+        this.drawVertices();
+        this.updateViolator();
+        this.updateCritical();
+        this.updatePair();
+        this.updateStratificationText();
     }
 
     reassignCoord(vertex2reassign, edge2reassign){

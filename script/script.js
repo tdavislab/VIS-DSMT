@@ -36,6 +36,7 @@ function markPairs() {
 function removeEFPairs() {
     dmt.efPairRemove();
     dmt2.efPairRemove();
+    dmt3.efPairRemove();
 }
 
 function removeVEPairs() {
