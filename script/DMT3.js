@@ -58,6 +58,10 @@ class DMT3{
         this.yScale = d3.scaleLinear()
             .domain([this.ymin, this.ymax])
             .range([450, 50])
+        this.curveScale = d3.line()
+                            .x(d=>d.x)
+                            .y(d=>d.y)
+                            .curve(d3.curveCardinal);
         
         //define arrow head
         this.canvas.append('svg:defs').append('svg:marker')
@@ -279,6 +283,8 @@ class DMT3{
         let xScale = this.xScale;
         let yScale = this.yScale;
 
+        let that = this;
+
         let ve = this.vegroup.selectAll('path')
             .data(this.noncriticalPair.vePair)
         ve.exit().remove();
@@ -293,11 +299,22 @@ class DMT3{
                 let starty = yScale(d[0].ycoord)
                 let endx = d[1].textcoord[0]
                 let endy = d[1].textcoord[1]
-                let path = d3.path();
-                path.moveTo(startx, starty);
-                path.lineTo(endx, endy);
-                // let a = d3.select('#e'+d[1].id)._groups[0][0].attributes["d"]
-                return path.toString()
+                let p = d3.select('#e'+d[1].id).node();
+                let totalLength = p.getTotalLength();
+                let midPoint1 = p.getPointAtLength(totalLength/4);
+                let midPoint2 = p.getPointAtLength(totalLength/4*3);
+                if(that.calDist(midPoint1, {"x":(startx+endx)/2, "y":(starty+endy)/2})!=0 && that.calDist(midPoint2, {"x":(startx+endx)/2, "y":(starty+endy)/2})!=0){ // a curve, not a straight line
+                    return that.drawHalfCurve(p, {"x":startx, "y":starty})
+                } else{
+                    let path = d3.path();
+                    path.moveTo(startx, starty);
+                    path.lineTo(endx, endy);
+                    return path.toString()
+
+                }
+
+                
+                
             })
 
         let ef = this.efgroup.selectAll('line')
@@ -333,6 +350,31 @@ class DMT3{
                 }
                 return yScale(sum/d[1].point.length);
             })
+    }
+
+    drawHalfCurve(p, startPoint){
+        let numSeg = 10;
+        let line = d3.line()
+                    .x(d=>d.x)
+                    .y(d=>d.y)
+        let totalLength = p.getTotalLength();
+        let endPoint = p.getPointAtLength(totalLength/2);
+        let midPoint = p.getPointAtLength(totalLength/4);
+        // let curvePenalty = 0;
+        let halfCurve = [startPoint];
+        if(this.calDist(startPoint, midPoint)===this.calDist(endPoint, midPoint)){
+            for(let i=1; i<numSeg; i++){
+                halfCurve.push(p.getPointAtLength(totalLength/2*(i/numSeg)));
+            }
+        } else {
+            for(let i=1;i<numSeg;i++){
+                halfCurve.push(p.getPointAtLength(totalLength/2*(2-i/numSeg)));
+            }
+        }
+        // for(let i=1; i<numSeg; i++){
+        //     halfCurve.push(p.getPointAtLength(totalLength/2*(i/numSeg+curvePenalty)));
+        // }
+        return line(halfCurve)
     }
 
     vePairRemove(){
@@ -371,6 +413,7 @@ class DMT3{
             this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
         })
         let vertex2reassign; // an edge only connects with 2 vertices
+        // let face2reassign;
         if(this.edges[eKey].start!=undefined){
             let vKey = 'v'+this.edges[eKey].start.id;
             for(let i=0; i<this.vertices[vKey].arms.length; i++){
@@ -394,10 +437,11 @@ class DMT3{
                     f.line.splice(i,1);
                 }
             }
+            // face2reassign
         })
         delete this.edges[eKey];
         this.noncriticalPair.vePair.splice(0,1);
-        this.reassignCoord(vertex2reassign, edge2reassign);
+        this.veReassignCoord(vertex2reassign, edge2reassign);
         this.reassignTopo();
         this.computeUL();
         this.computeStratification();
@@ -418,11 +462,12 @@ class DMT3{
             return
         }
         let efPair2Remove = this.noncriticalPair.efPair[0];
-        console.log("edge2remove",efPair2Remove[0]);
-        console.log("face2remove",efPair2Remove[1]);
+        console.log("edge2remove", efPair2Remove[0])
+        console.log("face2remove", efPair2Remove[1])
 
         // remove face
         let fKey = 'f'+efPair2Remove[1].id;
+        let edge2reassign=[];
         this.faces[fKey].face.forEach(eKey=>{
             this.edges[eKey].coface.splice(this.edges[eKey].coface.indexOf(fKey),1)
         })
@@ -431,6 +476,9 @@ class DMT3{
                 if(this.faces[fKey].id === e.wings[i].id){
                     e.wings.splice(i,1);
                 }
+            }
+            if(e.id!=efPair2Remove[0].id){
+                edge2reassign.push(e);
             }
         })
         delete this.faces[fKey];
@@ -443,6 +491,7 @@ class DMT3{
         this.edges[eKey].coface.forEach(fKey=>{
             this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
         })
+        let face2reassign; // one edge can at most connect to 2 faces
         let v_start = this.edges[eKey].start;
         for(let i=0; i<v_start.arms.length; i++){
             if(this.edges[eKey].id === v_start.arms[i].id){
@@ -461,10 +510,14 @@ class DMT3{
                     f.line.splice(i,1);
                 }
             }
+            if(f.id != efPair2Remove[1].id){
+                face2reassign = f;
+            }
         })
         delete this.edges[eKey];
         this.noncriticalPair.efPair.splice(0,1);
-
+        this.efReassignCoord(edge2reassign, face2reassign);
+        this.reassignTopo();
         this.computeUL();
         this.computeStratification();
         this.findCritical();
@@ -478,18 +531,98 @@ class DMT3{
         this.updateStratificationText();
     }
 
-    reassignCoord(vertex2reassign, edge2reassign){
+    veReassignCoord(vertex2reassign, edge2reassign){
         edge2reassign.forEach(e=>{
             if(e.start === undefined){
                 e.start = vertex2reassign;
             } else {
                 e.end = vertex2reassign;
             }
-            e.face.push('v'+vertex2reassign.id);
             vertex2reassign.arms.push(e);
-            vertex2reassign.coface.push('e'+e.id);
         })
         // **** faces ****
+    }
+
+    efReassignCoord(edge2reassign, face2reassign){
+        if(face2reassign){
+            console.log(face2reassign)
+            edge2reassign.forEach(e=>{
+                face2reassign.line.push(e);
+                e.wings.push(face2reassign);
+            })
+            let line_copy = [...face2reassign.line];
+            let pointIndex = [];
+            let lineIndex = [];
+            let e = line_copy[0];
+            let tmpIdx = 0
+            while(line_copy.length>0 && tmpIdx < 10){
+                lineIndex.push(e.id);
+                // if(pointIndex.indexOf(e.start.id)===-1){
+                //     pointIndex.push(e.start.id);
+                // }
+                // if(pointIndex.indexOf(e.end.id)===-1){
+                //     pointIndex.push(e.end.id);
+                // }
+                
+                
+                for(let i=0;i<line_copy.length;i++){
+                    if(line_copy[i].id === e.id){
+                        line_copy.splice(i,1);
+                    }
+                }
+                for(let i=0;i<line_copy.length;i++){
+                    let e2 = line_copy[i];
+                    if(e.end.id === e2.start.id || e.end.id === e2.end.id){
+                        pointIndex.push(e.start.id);
+
+                        // if(pointIndex.indexOf(e.start.id)===-1){
+                        //     pointIndex.push(e.start.id);
+                        // }
+                        // if(pointIndex.indexOf(e.end.id)===-1){
+                        //     pointIndex.push(e.end.id);
+                        // }
+                    } else if(e.start.id === e2.start.id || e.start.id === e2.end.id){
+                        pointIndex.push(e.end.id);
+                        // if(pointIndex.indexOf(e.end.id)===-1){
+                        //     pointIndex.push(e.end.id);
+                        // }
+                        // if(pointIndex.indexOf(e.start.id)===-1){
+                        //     pointIndex.push(e.start.id);
+                        // }   
+                    }
+                    e = e2;
+                }
+                if(pointIndex.indexOf(e.end.id)===-1){
+                    pointIndex.push(e.end.id);
+                }
+                if(pointIndex.indexOf(e.start.id)===-1){
+                    pointIndex.push(e.start.id);
+                }   
+                // line_copy.forEach(e2=>{
+                //     if(e2.end.id === e.end.id || e2.start.id === e.end.id || e2.start.id === e.start.id || e2.end.id === e.start.id){
+                //         e = e2;
+                //     }
+                // })
+            }
+            
+            // face2reassign.line.forEach(e=>{
+            //     lineIndex.push(e.id);
+            //     if(pointIndex.indexOf(e.start.id)===-1){
+            //         pointIndex.push(e.start.id);
+            //     }
+            //     if(pointIndex.indexOf(e.end.id)===-1){
+            //         pointIndex.push(e.end.id);
+            //     }
+            // })
+            let point = [];
+            pointIndex.forEach(vId=>{
+                let vKey = 'v'+vId;
+                point.push(this.vertices[vKey]);
+            })
+            face2reassign.point = point;
+            face2reassign.pointIndex = pointIndex;
+            face2reassign.lineIndex = lineIndex;
+        }
     }
 
     reassignTopo(){
@@ -756,8 +889,6 @@ class DMT3{
             }
         }
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
-
-        console.log("DMT3 efpair", this.noncriticalPair.efPair)
     }
 
     computeStratification() {
@@ -887,7 +1018,6 @@ class DMT3{
             }
         })
 
-        console.log("stratification", this.stratification)
     }
 
     computeAllConnectedComponents(unvisitedSimplex){
@@ -926,17 +1056,13 @@ class DMT3{
     }
 
     separateFrontiers(connectedComponents){
-        console.log("cc", connectedComponents)
         let connectedComponents_closure = [];
         connectedComponents.forEach(cc=>{
             connectedComponents_closure.push(this.computeClosure(cc));
         })
-        console.log("cc closure", connectedComponents_closure)
         for(let i=0; i<connectedComponents.length; i++){
             for(let j=0; j<connectedComponents_closure.length; j++){
                 let union = this.findUnion(connectedComponents[i], connectedComponents_closure[j]);
-                console.log(union)
-                console.log(this.checkFrontierCondition(connectedComponents[i],union))
                 if(this.checkFrontierCondition(connectedComponents[i],union)===false){
                     let cc1 = [...connectedComponents[i]];
                     union.forEach(u=>{
@@ -1260,6 +1386,11 @@ class DMT3{
                 f.d = path.toString();
             }
         }
+    }
+
+    calDist(loc1, loc2){
+        let dist = Math.sqrt(Math.pow(loc1.x-loc2.x,2)+Math.pow(loc1.y-loc2.y,2));
+        return dist;
     }
 
 
