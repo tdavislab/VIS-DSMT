@@ -58,10 +58,6 @@ class DMT3{
         this.yScale = d3.scaleLinear()
             .domain([this.ymin, this.ymax])
             .range([450, 50])
-        this.curveScale = d3.line()
-                            .x(d=>d.x)
-                            .y(d=>d.y)
-                            .curve(d3.curveCardinal);
         
         //define arrow head
         this.canvas.append('svg:defs').append('svg:marker')
@@ -304,17 +300,16 @@ class DMT3{
                 let midPoint1 = p.getPointAtLength(totalLength/4);
                 let midPoint2 = p.getPointAtLength(totalLength/4*3);
                 if(that.calDist(midPoint1, {"x":(startx+endx)/2, "y":(starty+endy)/2})!=0 && that.calDist(midPoint2, {"x":(startx+endx)/2, "y":(starty+endy)/2})!=0){ // a curve, not a straight line
+                    console.log(d[1])
+                    console.log(that.calDist(midPoint1, {"x":(startx+endx)/2, "y":(starty+endy)/2}))
+                    console.log(that.calDist(midPoint2, {"x":(startx+endx)/2, "y":(starty+endy)/2}))
                     return that.drawHalfCurve(p, {"x":startx, "y":starty})
                 } else{
                     let path = d3.path();
                     path.moveTo(startx, starty);
                     path.lineTo(endx, endy);
                     return path.toString()
-
                 }
-
-                
-                
             })
 
         let ef = this.efgroup.selectAll('line')
@@ -371,9 +366,6 @@ class DMT3{
                 halfCurve.push(p.getPointAtLength(totalLength/2*(2-i/numSeg)));
             }
         }
-        // for(let i=1; i<numSeg; i++){
-        //     halfCurve.push(p.getPointAtLength(totalLength/2*(i/numSeg+curvePenalty)));
-        // }
         return line(halfCurve)
     }
 
@@ -386,6 +378,7 @@ class DMT3{
             return
         }
         let vePair2Remove = this.noncriticalPair.vePair[0];
+        let possible_vlocation = {"x":vePair2Remove[0].xcoord,"y":vePair2Remove[0].ycoord};
         // remove vertex
         let vKey = 'v'+vePair2Remove[0].id;
         this.vertices[vKey].coface.forEach(eKey=>{
@@ -441,7 +434,7 @@ class DMT3{
         })
         delete this.edges[eKey];
         this.noncriticalPair.vePair.splice(0,1);
-        this.veReassignCoord(vertex2reassign, edge2reassign);
+        this.veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation);
         this.reassignTopo();
         this.computeUL();
         this.computeStratification();
@@ -531,15 +524,40 @@ class DMT3{
         this.updateStratificationText();
     }
 
-    veReassignCoord(vertex2reassign, edge2reassign){
+    veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation){
+        let d3_curve = d3.line()
+                        .x(d=>d.x)
+                        .y(d=>d.y)
+                        .curve(d3.curveCardinal);
         edge2reassign.forEach(e=>{
+            console.log(e.value)
             if(e.start === undefined){
                 e.start = vertex2reassign;
             } else {
                 e.end = vertex2reassign;
             }
             vertex2reassign.arms.push(e);
+            // avoid intersection with other edges
+            // let if_intersect = false;
+            // Object.keys(this.edges).forEach(eKey=>{
+            //     let e2 = this.edges[eKey];
+            //     console.log(e2.value)
+            //     if(e2.id!=e.id){
+            //         let line1 = [{"x":e.start.xcoord, "y":e.start.ycoord}, {"x":e.end.xcoord, "y":e.end.ycoord}];
+            //         let line2 = [{"x":e2.start.xcoord, "y":e2.start.ycoord}, {"x":e2.end.xcoord, "y":e2.end.ycoord}];
+            //         console.log(this.ifLinesIntersect(line1, line2))
+
+            //         if(this.ifLinesIntersect(line1, line2)){
+            //             if_intersect = true;
+            //         }
+            //     }
+            // })
+            // if(if_intersect){
+            //     e.d = d3_curve([{"x":e.start.xcoord, "y":e.start.ycoord}, possible_vlocation, {"x":e.end.xcoord, "y":e.end.ycoord}])
+            // }
+
         })
+        
         // **** faces ****
     }
 
@@ -1198,6 +1216,7 @@ class DMT3{
         let edgesArray = Object.values(this.edges);
 
         this.collinearEdges = [];
+        this.collinearEdges_Idx = [];
         for (let i = 0; i < edgesArray.length; i++) {
             let e1 = edgesArray[i];
 
@@ -1255,9 +1274,99 @@ class DMT3{
                 }
             }
             if (temp.length > 1) {
-                this.collinearEdges.push(temp)
+                this.collinearEdges.push(temp);
             }
+
         }
+
+        // // console.log(this.collinearEdges)
+
+        // // check collinear
+        // let if_visited = {};
+        // for(let eKey in this.edges){
+        //     if_visited[eKey] = false;
+        // }
+        // for(let vKey in this.vertices){
+        //     let v = this.vertices[vKey];
+
+        //     let directions = [];
+        //     let directions_dict = {};
+        //     let coll_group = []
+        //     for(let i=0; i<v.arms.length; i++){
+        //         let e = v.arms[i];
+            //     let startPt = {"x":v.xcoord, "y":v.ycoord};
+            //     let endPt;
+            //     if(e.start.id === v.id){
+            //         endPt = {"x":e.end.xcoord, "y":e.end.ycoord};
+            //     } else {
+            //         endPt = {"x":e.start.xcoord, "y":e.start.ycoord};
+            //     }
+            //     let dict = this.computeDirection(startPt, endPt);
+            //     if(directions.indexOf(dict)===-1){
+            //         directions.push(dict);
+            //         directions_dict[dict] = [e.id];
+            //     } else{
+            //         directions_dict[dict].push(e.id);  
+            //     }
+            //     if(v.value === 30){
+            //         console.log(startPt, endPt, dict)
+            //     }
+            // }
+            // for(let dict in directions_dict){
+            //     if(directions_dict[dict].length > 1){
+            //         coll_group.push(directions_dict[dict]);
+            //     }
+            // }
+            // coll_group.forEach(g=>{
+            //     g.sort(function(a, b){return a - b});
+            //     let if_exist = false;
+            //     let if_g_visited = false;
+            //     g.forEach(eId=>{
+            //         let eKey = 'e'+eId;
+            //         if(if_visited[eKey]){
+            //             if_g_visited = true;
+            //         }
+                // })
+                // for(let i=0; i<this.collinearEdges_Idx.length; i++){
+                //     let coll = this.collinearEdges_Idx[i];
+                //     if(JSON.stringify(this.collinearEdges_Idx).indexOf(JSON.stringify(g))!=-1){
+                //         if_exist = true;
+                //     } else if(this.findUnion(coll,g).length === g.length){
+                //         if_exist = true;
+                //     } else if(this.findUnion(coll,g).length === coll.length){
+                //         if_exist = true;
+                //         this.collinearEdges_Idx.splice(i,1);
+                //         this.collinearEdges_Idx.push(g);
+                //         g.forEach(eId=>{
+                //             let eKey = 'e'+eId;
+                //             if_visited[eKey]=true;
+                //         })
+                //     } else if(if_g_visited){
+                //         if_exist = true;
+                //     }
+                //     if(if_exist){
+                //         break;
+                //     }
+                // }
+                // if(!if_exist){
+                //     this.collinearEdges_Idx.push(g);
+                //     g.forEach(eId=>{
+                //         let eKey = 'e'+eId;
+                //         if_visited[eKey]=true;
+        //             })
+        //         } 
+        //     })
+        // }
+        // this.collinearEdges_Idx.forEach(collIdx=>{
+        //     let temp = [];
+        //     collIdx.forEach(eId=>{
+        //         let eKey = "e"+eId;
+        //         temp.push(this.edges[eKey]);
+        //     })
+        //     this.collinearEdges.push(temp);
+        // })
+        // console.log(this.collinearEdges)
+        // console.log(this.collinearEdges_Idx)
 
         for (let group of this.collinearEdges) {
             for (let i = 0; i < group.length; i++) {
@@ -1298,6 +1407,18 @@ class DMT3{
                     m.textcoord = [(x + cx) / 2, (y + cy) / 2];
                 }
             }
+        }
+    }
+
+    computeDirection(startPt, endPt){
+        if (startPt.x === endPt.x && startPt.y >= endPt.y){
+            return "verticaldown";
+        } else if(startPt.x === endPt.x && startPt.y < endPt.y){
+            return "verticalup";
+        }
+        else{
+            return parseInt(Math.atan2(startPt.y - endPt.y, startPt.x - endPt.x)*180/Math.PI);
+            // return (startPt.y - endPt.y)/(startPt.x - endPt.x)
         }
     }
 
@@ -1390,7 +1511,57 @@ class DMT3{
 
     calDist(loc1, loc2){
         let dist = Math.sqrt(Math.pow(loc1.x-loc2.x,2)+Math.pow(loc1.y-loc2.y,2));
-        return dist;
+        return parseInt(dist*100);
+    }
+
+    ifLinesIntersect(line1,line2){
+        // for example, line1 = [pt1,pt2]; pt1 = {x:0,y:0};
+        let pt1 = line1[0];
+        let pt2 = line1[1];
+        let pt3 = line2[0];
+        let pt4 = line2[1];
+        let x;
+        let y;
+        // // if they share the same endpoint, they do not intersect
+        // if((pt1.x===pt3.x && pt1.y===pt3.y)||(pt1.x===pt4.x && pt1.y===pt4.y)||(pt2.x===pt3.x && pt2.y===pt3.y)||(pt2.x===pt4.x && pt2.y===pt4.y)){
+        //     return false;
+        // }
+        if(pt1.x===pt2.x&&pt3.x===pt4.x){ // if two lines are both vertical
+            if(pt1.x===pt3.x){
+                if((pt3.y<=Math.max(pt1.y,pt2.y) && pt3.y>=Math.min(pt1.y,pt2.y))||(pt4.y<=Math.max(pt1.y,pt2.y) && pt4.y>=Math.min(pt1.y,pt2.y))){
+                    return true;
+                } else{
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if(pt1.x===pt2.x){ // if line1 is vertical
+            let a2 = (pt3.y-pt4.y)/(pt3.x-pt4.x);
+            let b2 = (pt3.x*pt4.y-pt4.x*pt3.y)/(pt3.x-pt4.x);
+            x = pt1.x;
+            y = a2*x+b2;
+        } else if(pt3.x===pt4.x){ // if line2 is vertical
+            let a1 = (pt1.y-pt2.y)/(pt1.x-pt2.x);
+            let b1 = (pt1.x*pt2.y-pt2.x*pt1.y)/(pt1.x-pt2.x);
+            x = pt3.x;
+            y = a1*x+b1;
+        } else {
+            let a1 = (pt1.y-pt2.y)/(pt1.x-pt2.x);
+            let b1 = (pt1.x*pt2.y-pt2.x*pt1.y)/(pt1.x-pt2.x);
+            let a2 = (pt3.y-pt4.y)/(pt3.x-pt4.x);
+            let b2 = (pt3.x*pt4.y-pt4.x*pt3.y)/(pt3.x-pt4.x);
+            if(a1===a2){
+                return false;
+            } else {
+                x = (b2-b1)/(a1-a2);
+                y = (a1*b2-a2*b1)/(a1-a2);
+            }
+        }        
+        if((Math.min(pt1.x,pt2.x)<=x && x<=Math.max(pt1.x,pt2.x))&&(Math.min(pt1.y,pt2.y)<=y && y<=Math.max(pt1.y,pt2.y))&&(Math.min(pt3.x,pt4.x)<=x && x<=Math.max(pt3.x,pt4.x))&&(Math.min(pt3.y,pt4.y)<=y && y<=Math.max(pt3.y,pt4.y))){
+            return true;
+        } else { return false;}
+    
     }
 
 
