@@ -39,7 +39,7 @@ class Read {
                 // heads: [this.vertices[parseInt(coord[0])],this.vertices[parseInt(coord[1])]],
                 start: this.vertices[parseInt(coord[0])],
                 end: this.vertices[parseInt(coord[1])],
-                value: parseInt(coord[2])
+                value: parseFloat(coord[2])
             }
             this.edges.push(result);
         }

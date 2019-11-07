@@ -1,6 +1,7 @@
 class DMT3{
 
     constructor(vertices, faces, edges){
+        // let vertices_new = this.recognizeIdenticalVertices(vertices);
         this.vertices = {};
         this.edges = {};
         this.faces = {};
@@ -61,7 +62,7 @@ class DMT3{
         this.curveScale = d3.line()
             .x(d=>this.xScale(d.x))
             .y(d=>this.yScale(d.y))
-            .curve(d3.curveCardinal.tension(0));
+            .curve(d3.curveCardinal.tension(-1));
         
         //define arrow head
         this.canvas.append('svg:defs').append('svg:marker')
@@ -112,6 +113,38 @@ class DMT3{
         this.drawEdges();
         this.drawVertices();
     }
+
+    // recognizeIdenticalVertices(vertices){ // currently, only recognize by function values
+    //     console.log(vertices)
+    //     let vertices_dict = {};
+    //     vertices.forEach(v=>{
+    //         if(v.value in vertices_dict){
+    //             vertices_dict[v.value].push(v);
+    //         } else{
+    //             vertices_dict[v.value] = [v];
+    //         }
+    //     })
+    //     console.log(vertices_dict)
+    //     for(let vf in vertices_dict){
+    //         let arms_array = [];
+    //         vertices[vf].forEach(v=>{
+    //             v.arms.forEach(e=>{
+    //                 if(arms_array.indexOf(e)===-1){
+    //                     arms_array.push(e);
+    //                 }
+    //             })
+    //         })
+    //         vertices[vf].forEach(v=>{
+    //             v.arms = arms_array;
+    //         })
+    //     }
+
+
+    // }
+
+    // recognizeIdenticalFaces(faces){
+
+    // }
 
     updateStratification(){
         this.markStratification = true;
@@ -396,7 +429,6 @@ class DMT3{
                 edge2reassign.push(e);
             }
         })
-        delete this.vertices[vKey];
 
         // remove edge
         let eKey = 'e'+vePair2Remove[1].id;
@@ -431,12 +463,23 @@ class DMT3{
                     f.line.splice(i,1);
                 }
             }
-            // face2reassign
+            f.lineIndex.splice(f.lineIndex.indexOf(vePair2Remove[1].id),1);
+            for(let i=0; i<f.point.length; i++){
+                if(f.point[i].id === vePair2Remove[0].id){
+                    f.point.splice(i,1);
+                }
+            }
+            f.pointIndex.splice(vePair2Remove[0].id,1);
+
         })
+
+        delete this.vertices[vKey];
         delete this.edges[eKey];
+
         this.noncriticalPair.vePair.splice(0,1);
         this.veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation);
         this.reassignTopo();
+        // this.vePairReorder();
         this.computeUL();
         this.computeStratification();
         this.findCritical();
@@ -512,6 +555,7 @@ class DMT3{
         this.noncriticalPair.efPair.splice(0,1);
         this.efReassignCoord(edge2reassign, face2reassign);
         this.reassignTopo();
+        this.efPairReorder();
         this.computeUL();
         this.computeStratification();
         this.findCritical();
@@ -586,65 +630,65 @@ class DMT3{
             let lineIndex = [];
             let e = line_copy[0];
             let tmpIdx = 0
-            while(line_copy.length>0 && tmpIdx < 10){
-                lineIndex.push(e.id);
-                // if(pointIndex.indexOf(e.start.id)===-1){
-                //     pointIndex.push(e.start.id);
-                // }
+            // while(line_copy.length>0 && tmpIdx < 10){
+            //     lineIndex.push(e.id);
+            //     // if(pointIndex.indexOf(e.start.id)===-1){
+            //     //     pointIndex.push(e.start.id);
+            //     // }
+            //     // if(pointIndex.indexOf(e.end.id)===-1){
+            //     //     pointIndex.push(e.end.id);
+            //     // }
+                
+                
+            //     for(let i=0;i<line_copy.length;i++){
+            //         if(line_copy[i].id === e.id){
+            //             line_copy.splice(i,1);
+            //         }
+            //     }
+            //     for(let i=0;i<line_copy.length;i++){
+            //         let e2 = line_copy[i];
+            //         if(e.end.id === e2.start.id || e.end.id === e2.end.id){
+            //             pointIndex.push(e.start.id);
+
+            //             // if(pointIndex.indexOf(e.start.id)===-1){
+            //             //     pointIndex.push(e.start.id);
+            //             // }
+            //             // if(pointIndex.indexOf(e.end.id)===-1){
+            //             //     pointIndex.push(e.end.id);
+            //             // }
+            //         } else if(e.start.id === e2.start.id || e.start.id === e2.end.id){
+            //             pointIndex.push(e.end.id);
+            //             // if(pointIndex.indexOf(e.end.id)===-1){
+            //             //     pointIndex.push(e.end.id);
+            //             // }
+            //             // if(pointIndex.indexOf(e.start.id)===-1){
+            //             //     pointIndex.push(e.start.id);
+            //             // }   
+            //         }
+            //         e = e2;
+            //     }
                 // if(pointIndex.indexOf(e.end.id)===-1){
                 //     pointIndex.push(e.end.id);
                 // }
-                
-                
-                for(let i=0;i<line_copy.length;i++){
-                    if(line_copy[i].id === e.id){
-                        line_copy.splice(i,1);
-                    }
-                }
-                for(let i=0;i<line_copy.length;i++){
-                    let e2 = line_copy[i];
-                    if(e.end.id === e2.start.id || e.end.id === e2.end.id){
-                        pointIndex.push(e.start.id);
-
-                        // if(pointIndex.indexOf(e.start.id)===-1){
-                        //     pointIndex.push(e.start.id);
-                        // }
-                        // if(pointIndex.indexOf(e.end.id)===-1){
-                        //     pointIndex.push(e.end.id);
-                        // }
-                    } else if(e.start.id === e2.start.id || e.start.id === e2.end.id){
-                        pointIndex.push(e.end.id);
-                        // if(pointIndex.indexOf(e.end.id)===-1){
-                        //     pointIndex.push(e.end.id);
-                        // }
-                        // if(pointIndex.indexOf(e.start.id)===-1){
-                        //     pointIndex.push(e.start.id);
-                        // }   
-                    }
-                    e = e2;
+                // if(pointIndex.indexOf(e.start.id)===-1){
+                //     pointIndex.push(e.start.id);
+                // }   
+                // // line_copy.forEach(e2=>{
+                // //     if(e2.end.id === e.end.id || e2.start.id === e.end.id || e2.start.id === e.start.id || e2.end.id === e.start.id){
+                // //         e = e2;
+                // //     }
+                // // })
+            // }
+            
+            face2reassign.line.forEach(e=>{
+                lineIndex.push(e.id);
+                if(pointIndex.indexOf(e.start.id)===-1){
+                    pointIndex.push(e.start.id);
                 }
                 if(pointIndex.indexOf(e.end.id)===-1){
                     pointIndex.push(e.end.id);
                 }
-                if(pointIndex.indexOf(e.start.id)===-1){
-                    pointIndex.push(e.start.id);
-                }   
-                // line_copy.forEach(e2=>{
-                //     if(e2.end.id === e.end.id || e2.start.id === e.end.id || e2.start.id === e.start.id || e2.end.id === e.start.id){
-                //         e = e2;
-                //     }
-                // })
-            }
-            
-            // face2reassign.line.forEach(e=>{
-            //     lineIndex.push(e.id);
-            //     if(pointIndex.indexOf(e.start.id)===-1){
-            //         pointIndex.push(e.start.id);
-            //     }
-            //     if(pointIndex.indexOf(e.end.id)===-1){
-            //         pointIndex.push(e.end.id);
-            //     }
-            // })
+            })
             let point = [];
             pointIndex.forEach(vId=>{
                 let vKey = 'v'+vId;
@@ -907,19 +951,59 @@ class DMT3{
     }
 
     findPair(){
-        let vePair = [];
-        let efPair = [];
+        let vePair_freeEdge = []; // free edge: not connect with a face
+        let vePair_non_freeEdge = [];
+        let efPair_freeface = []; // free face
+        let efPair_non_freeface = [];
         for(let vKey in this.vertices){
             if(this.vertices[vKey].uCount===1){
-                vePair.push([this.vertices[vKey], this.edges[this.vertices[vKey].uCount_detail[0]]]);
+                let v = this.vertices[vKey];
+                let e = this.edges[this.vertices[vKey].uCount_detail[0]];
+                if(e.wings > 0){
+                    vePair_non_freeEdge.push([v,e]);
+                } else { vePair_freeEdge.push([v,e]); }
             }
         }
         for(let eKey in this.edges){
             if(this.edges[eKey].uCount===1){
-                efPair.push([this.edges[eKey], this.faces[this.edges[eKey].uCount_detail[0]]]);
+                if(this.edges[eKey].wings.length > 1){
+                    efPair_non_freeface.push([this.edges[eKey], this.faces[this.edges[eKey].uCount_detail[0]]])
+                } else{
+                    efPair_freeface.push([this.edges[eKey], this.faces[this.edges[eKey].uCount_detail[0]]]);
+                }
             }
         }
+        // re-order vePair and efPair
+        let vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
+        let efPair = efPair_freeface.concat(efPair_non_freeface);
+        console.log("efpair",efPair)
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
+    }
+
+    vePairReorder(){
+        console.log("ve reordering")
+        let vePair_freeEdge = [];
+        let vePair_non_freeEdge = [];
+        this.noncriticalPair.vePair.forEach(pair=>{
+            let e = pair[1];
+            if(e.wings.length>0){
+                vePair_non_freeEdge.push(pair);
+            } else{ vePair_freeEdge.push(pair); }
+        })
+        this.noncriticalPair.vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
+        console.log(this.noncriticalPair.vePair)
+    }
+
+    efPairReorder(){
+        let efPair_freeface = [];
+        let efPair_non_freeface = [];
+        this.noncriticalPair.efPair.forEach(pair=>{
+            let e = pair[0];
+            if(e.wings.length>1){
+                efPair_non_freeface.push(pair);
+            } else{ efPair_freeface.push(pair); }
+        })
+        this.noncriticalPair.efPair = efPair_freeface.concat(efPair_non_freeface);
     }
 
     computeStratification() {

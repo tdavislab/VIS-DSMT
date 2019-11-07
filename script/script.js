@@ -65,7 +65,17 @@ function exp6() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dmt_grid.off");
+    oReq.open("GET", "data/dmt_new_1.off");
+    oReq.send();
+}
+
+function exp7() {
+    let oReq = new XMLHttpRequest();
+    oReq.addEventListener("load", function () {
+        off = this.responseText;
+        initialzeDMT()
+    });
+    oReq.open("GET", "data/dmt_new_2.off");
     oReq.send();
 }
 
