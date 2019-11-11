@@ -16,32 +16,32 @@ function showStratification() {
 }
 
 function markViolators() {
-    dmt.updateViolator();
-    dmt2.updateViolator();
+    // dmt.updateViolator();
+    // dmt2.updateViolator();
     dmt3.updateViolator();
 }
 
 function markCriticals() {
-    dmt.updateCritical();
-    dmt2.updateCritical();
+    // dmt.updateCritical();
+    // dmt2.updateCritical();
     dmt3.updateCritical();
 }
 
 function markPairs() {
-    dmt.updatePair();
-    dmt2.updatePair();
+    // dmt.updatePair();
+    // dmt2.updatePair();
     dmt3.updatePair();
 }
 
 function removeEFPairs() {
-    dmt.efPairRemove();
-    dmt2.efPairRemove();
+    // dmt.efPairRemove();
+    // dmt2.efPairRemove();
     dmt3.efPairRemove();
 }
 
 function removeVEPairs() {
-    dmt.vePairRemove();
-    dmt2.vePairRemove();
+    // dmt.vePairRemove();
+    // dmt2.vePairRemove();
     dmt3.vePairRemove();
 }
 
@@ -149,15 +149,15 @@ function randomizeValues(){
 function initialzeDMT() {
     console.log(off);
 
-    let read = new Read();
-    read.readOFF(off);
-    dmt = new DMT(read.getVertices(), read.getFaces(), read.getEdges());
-    dmt.draw();
+    // let read = new Read();
+    // read.readOFF(off);
+    // dmt = new DMT(read.getVertices(), read.getFaces(), read.getEdges());
+    // dmt.draw();
 
-    let read2 = new Read();
-    read2.readOFF(off);
-    dmt2 = new DMT2(read2.getVertices(), read2.getFaces(), read2.getEdges());
-    dmt2.draw();
+    // let read2 = new Read();
+    // read2.readOFF(off);
+    // dmt2 = new DMT2(read2.getVertices(), read2.getFaces(), read2.getEdges());
+    // dmt2.draw();
 
     let read3 = new Read();
     read3.readOFF(off);
