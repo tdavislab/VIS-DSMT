@@ -119,6 +119,17 @@ function exp4() {
     oReq.send();
 }
 
+function exp8() {
+    let oReq = new XMLHttpRequest();
+    oReq.addEventListener("load", function () {
+        off = this.responseText;
+        initialzeDMT()
+    });
+    oReq.open("GET", "data/dsmt_exp5.off");
+    oReq.send();
+    d3.select("#randomize_values").style("visibility","visible");
+}
+
 function handleFileSelect(file)
 {
     let reader = new FileReader();
@@ -128,6 +139,11 @@ function handleFileSelect(file)
         off = reader.result;
         initialzeDMT()
     }
+}
+
+function randomizeValues(){
+    rollback()
+    dmt3.randomizeValues();
 }
 
 function initialzeDMT() {

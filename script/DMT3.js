@@ -114,6 +114,40 @@ class DMT3{
         this.drawVertices();
     }
 
+    randomizeValues(){
+        let valuesArray = [];
+        for(let i=1; i<= 100; i++){
+            valuesArray.push(i);
+        }
+        this.shuffleArray(valuesArray)
+        let idx = 0;
+        for(let vKey in this.vertices){
+            this.vertices[vKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        for(let eKey in this.edges){
+            this.edges[eKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        for(let fKey in this.faces){
+            this.faces[fKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        this.draw();
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    randomize_a_number(){
+        // range: 0-100
+
+    }
+
     // recognizeIdenticalVertices(vertices){ // currently, only recognize by function values
     //     console.log(vertices)
     //     let vertices_dict = {};
@@ -154,10 +188,10 @@ class DMT3{
             let sKeyArray = this.stratification[i];
             let color_i = color(i);
             let step = 0;
-            while(color_used.indexOf(color_i)!=-1 || step<20){
-                color_i = color(i);
-                step += 1;
-            }
+            // while(color_used.indexOf(color_i)!=-1 || step<20){
+            //     color_i = color(i);
+            //     step += 1;
+            // }
             color_used.push(color_i);
             sKeyArray.forEach(sKey=>{
                 if(sKey[0]==='v'){
@@ -479,7 +513,6 @@ class DMT3{
         this.noncriticalPair.vePair.splice(0,1);
         this.veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation);
         this.reassignTopo();
-        // this.vePairReorder();
         this.computeUL();
         this.computeStratification();
         this.findCritical();
@@ -491,7 +524,7 @@ class DMT3{
         this.updateCritical();
         this.updatePair();
         this.updateStratificationText();
-
+        this.vePairReorder();
     }
 
     efPairRemove(){
@@ -555,7 +588,6 @@ class DMT3{
         this.noncriticalPair.efPair.splice(0,1);
         this.efReassignCoord(edge2reassign, face2reassign);
         this.reassignTopo();
-        this.efPairReorder();
         this.computeUL();
         this.computeStratification();
         this.findCritical();
@@ -567,6 +599,7 @@ class DMT3{
         this.updateCritical();
         this.updatePair();
         this.updateStratificationText();
+        this.efPairReorder();
     }
 
     veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation){
@@ -593,9 +626,7 @@ class DMT3{
                 e.middle = this.findPossiblePosition(e, possible_vlocation);
             }
 
-        })
-        
-        // **** faces ****
+        })        
     }
 
     findPossiblePosition(e, vlocation){
@@ -623,6 +654,7 @@ class DMT3{
             console.log(face2reassign)
             edge2reassign.forEach(e=>{
                 face2reassign.line.push(e);
+                console.log(e)
                 e.wings.push(face2reassign);
             })
             let line_copy = [...face2reassign.line];
@@ -1137,7 +1169,8 @@ class DMT3{
 
     computeAllConnectedComponents(unvisitedSimplex){
         let connectedComponents = [];
-        while(unvisitedSimplex.length>0){
+        let step = 0;
+        while(unvisitedSimplex.length>0 && step < 100){
             let ifVisited = {};
             unvisitedSimplex.forEach(sKey=>{ ifVisited[sKey]=false; })
             let cc = this.computeConnectedComponent([], ifVisited, unvisitedSimplex[0]);
@@ -1145,6 +1178,10 @@ class DMT3{
             cc.forEach(sKey=>{
                 unvisitedSimplex.splice(unvisitedSimplex.indexOf(sKey),1);
             })
+            step += 1;
+        }
+        if(step >= 100){
+            alert("Too many stratification!")
         }
         return connectedComponents;
     }
