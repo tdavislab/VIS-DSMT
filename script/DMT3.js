@@ -110,6 +110,7 @@ class DMT3{
         this.findCritical();
         this.findPair();
         this.drawFaces();
+        this.checkSpecialFaces();
         this.drawEdges();
         this.drawVertices();
     }
@@ -453,15 +454,32 @@ class DMT3{
             this.edges[eKey].face.splice(this.edges[eKey].face.indexOf(vKey),1);
         })
         let edge2reassign = [];
+        let face2reassign = []
         this.vertices[vKey].arms.forEach(e=>{
             if(e.start.id === vePair2Remove[0].id){
                 e.start = undefined;
-            } else if(e.end.id === vePair2Remove[0].id){
+            }
+            if(e.end.id === vePair2Remove[0].id){
                 e.end = undefined;
             }
             if(e.id != vePair2Remove[1].id){
                 edge2reassign.push(e);
             }
+        })
+        this.vertices[vKey].wings.forEach(f=>{
+            let point_new = [];
+            let pointIndex_new = [];
+            for(let i=0; i<f.point.length; i++){
+                if(f.point[i].id != vePair2Remove[0].id){
+                    point_new.push(f.point[i]);
+                }
+            }
+            f.point = point_new;
+            point_new.forEach(p=>{
+                pointIndex_new.push(p.id);
+            })
+            f.pointIndex = pointIndex_new;
+            face2reassign.push(f);
         })
 
         // remove edge
@@ -498,20 +516,13 @@ class DMT3{
                 }
             }
             f.lineIndex.splice(f.lineIndex.indexOf(vePair2Remove[1].id),1);
-            for(let i=0; i<f.point.length; i++){
-                if(f.point[i].id === vePair2Remove[0].id){
-                    f.point.splice(i,1);
-                }
-            }
-            f.pointIndex.splice(vePair2Remove[0].id,1);
-
         })
 
-        delete this.vertices[vKey];
-        delete this.edges[eKey];
+        delete this.vertices['v'+vePair2Remove[0].id];
+        delete this.edges['e'+vePair2Remove[1].id];
 
         this.noncriticalPair.vePair.splice(0,1);
-        this.veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation);
+        this.veReassignCoord(vertex2reassign, edge2reassign, face2reassign, possible_vlocation);
         this.reassignTopo();
         this.computeUL();
         this.computeStratification();
@@ -538,6 +549,7 @@ class DMT3{
         // remove face
         let fKey = 'f'+efPair2Remove[1].id;
         let edge2reassign=[];
+        let vertex2reassign = [];
         this.faces[fKey].face.forEach(eKey=>{
             this.edges[eKey].coface.splice(this.edges[eKey].coface.indexOf(fKey),1)
         })
@@ -550,6 +562,14 @@ class DMT3{
             if(e.id!=efPair2Remove[0].id){
                 edge2reassign.push(e);
             }
+        })
+        this.faces[fKey].point.forEach(v=>{
+            for(let i=0; i<v.wings.length; i++){
+                if(this.faces[fKey].id === v.wings[i].id){
+                    v.wings.splice(i,1);
+                }
+            }
+            vertex2reassign.push(v);
         })
         delete this.faces[fKey];
 
@@ -586,7 +606,7 @@ class DMT3{
         })
         delete this.edges[eKey];
         this.noncriticalPair.efPair.splice(0,1);
-        this.efReassignCoord(edge2reassign, face2reassign);
+        this.efReassignCoord(vertex2reassign, edge2reassign, face2reassign);
         this.reassignTopo();
         this.computeUL();
         this.computeStratification();
@@ -602,11 +622,13 @@ class DMT3{
         this.efPairReorder();
     }
 
-    veReassignCoord(vertex2reassign, edge2reassign, possible_vlocation){
+    veReassignCoord(vertex2reassign, edge2reassign, face2reassign, possible_vlocation){
+        console.log("f2reassign", face2reassign)
         edge2reassign.forEach(e=>{
             if(e.start === undefined){
                 e.start = vertex2reassign;
-            } else {
+            } 
+            if(e.end === undefined) {
                 e.end = vertex2reassign;
             }
             vertex2reassign.arms.push(e);
@@ -626,7 +648,24 @@ class DMT3{
                 e.middle = this.findPossiblePosition(e, possible_vlocation);
             }
 
-        })        
+        })
+        face2reassign.forEach(f=>{
+            console.log(f)
+            let point = [];
+            let pointIndex = [];
+            f.line.forEach(e=>{
+                if(pointIndex.indexOf(e.start.id)===-1){
+                    point.push(e.start);
+                    pointIndex.push(e.start.id);
+                }
+                if(pointIndex.indexOf(e.end.id)===-1){
+                    point.push(e.end);
+                    pointIndex.push(e.end.id);
+                }
+            })
+            f.point = point;
+            f.pointIndex = pointIndex;
+        })     
     }
 
     findPossiblePosition(e, vlocation){
@@ -649,7 +688,7 @@ class DMT3{
         return {"x":px, "y":py};
     }
 
-    efReassignCoord(edge2reassign, face2reassign){
+    efReassignCoord(vertex2reassign, edge2reassign, face2reassign){
         if(face2reassign){
             console.log(face2reassign)
             edge2reassign.forEach(e=>{
@@ -730,6 +769,17 @@ class DMT3{
             face2reassign.pointIndex = pointIndex;
             face2reassign.lineIndex = lineIndex;
         }
+        vertex2reassign.forEach(v=>{
+            let wings = [];
+            v.arms.forEach(e=>{
+                e.wings.forEach(f=>{
+                    if(wings.indexOf(f)===-1){
+                        wings.push(f);
+                    }
+                })
+            })
+            v.wings = wings;
+        })
     }
 
     reassignTopo(){
@@ -1008,7 +1058,7 @@ class DMT3{
         // re-order vePair and efPair
         let vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
         let efPair = efPair_freeface.concat(efPair_non_freeface);
-        console.log("efpair",efPair)
+        console.log("vepair",vePair)
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
     }
 

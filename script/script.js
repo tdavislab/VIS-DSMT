@@ -106,6 +106,7 @@ function exp3() {
         initialzeDMT()
     });
     oReq.open("GET", "data/dsmt_figure4.off");
+    // oReq.open("GET", "data/dsmt_try.off");
     oReq.send();
 }
 
@@ -126,6 +127,17 @@ function exp8() {
         initialzeDMT()
     });
     oReq.open("GET", "data/dsmt_exp5.off");
+    oReq.send();
+    d3.select("#randomize_values").style("visibility","visible");
+}
+
+function exp9() {
+    let oReq = new XMLHttpRequest();
+    oReq.addEventListener("load", function () {
+        off = this.responseText;
+        initialzeDMT()
+    });
+    oReq.open("GET", "data/dsmt_exp6.off");
     oReq.send();
     d3.select("#randomize_values").style("visibility","visible");
 }
