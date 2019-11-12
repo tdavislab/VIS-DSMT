@@ -7,11 +7,18 @@ To see a live demo, go to https://vis-dsmt.herokuapp.com/.
 This is developed by Youjia Zhou, Yulong Liang and Bei Wang. 
 
 For theoretical and algorithmic details on DSMT, please refer to:
-Discrete Stratified Morse Theory: Algorithms and A User's Guide
-Kevin Knudson, Bei Wang
-ArXiv:1801.03183
-2019
+
+Discrete Stratified Morse Theory: Algorithms and A User's Guide. 
+Kevin Knudson, Bei Wang.
+ArXiv:1801.03183, 2019.
+
 https://arxiv.org/abs/1801.03183
+
+An earlier version appears as an extended abstract:
+
+Discrete Stratified Morse Theory: A User's Guide.
+Kevin Knudson and Bei Wang.
+International Symposium on Computational Geometry (SOCG), 2018.
 
 # Installing
 ```bash
