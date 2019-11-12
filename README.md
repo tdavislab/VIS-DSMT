@@ -1,6 +1,6 @@
 # VIS-DSMT
 
-This is an implementation and visualization for constructing Discrete Stratification Morse Theory.
+This is an implementation and visualization for Discrete Stratification Morse Theory.
 
 To see a live demo, go to https://vis-dsmt.herokuapp.com/.
 
