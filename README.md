@@ -1,11 +1,17 @@
 # VIS-DSMT
 
-This is an implementation and visualization for Discrete Stratification Morse Theory.
+This is a demo that implements algorithms for discrete stratification Morse theory (DSMT).
 
 To see a live demo, go to https://vis-dsmt.herokuapp.com/.
 
-(The original github repository is: https://github.com/leong1016/Visualization-for-Discrete-Stratified-Morse-Theory)
+This is developed by Youjia Zhou, Yulong Liang and Bei Wang. 
 
+For theoretical and algorithmic details on DSMT, please refer to:
+Discrete Stratified Morse Theory: Algorithms and A User's Guide
+Kevin Knudson, Bei Wang
+ArXiv:1801.03183
+2019
+https://arxiv.org/abs/1801.03183
 
 # Installing
 ```bash
