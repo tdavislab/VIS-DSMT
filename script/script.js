@@ -3,6 +3,7 @@ let off;
 let dmt;
 let dmt2;
 let dmt3;
+let valuesArray;
 
 let input = document.getElementById('files');
 input.onchange = function (event) {
@@ -46,7 +47,13 @@ function removeVEPairs() {
 }
 
 function rollback() {
+    if(dmt3.valuesArray){
+        valuesArray = dmt3.valuesArray;
+    }
     initialzeDMT(off);
+    if(valuesArray){
+        dmt3.retrieveValues(valuesArray);
+    }
 }
 
 function exp5() {
@@ -126,7 +133,7 @@ function exp8() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_exp5.off");
+    oReq.open("GET", "data/dsmt_try.off");
     oReq.send();
     d3.select("#randomize_values").style("visibility","visible");
 }

@@ -24,6 +24,7 @@ class DMT3{
             this.faces['f'+f.id] = f;
         });
         
+        
         console.log("vertices", this.vertices);
         console.log("edges", this.edges);
         console.log("faces", this.faces);
@@ -115,6 +116,24 @@ class DMT3{
         this.drawVertices();
     }
 
+    retrieveValues(valuesArray){
+        let idx = 0;
+        for(let vKey in this.vertices){
+            this.vertices[vKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        for(let eKey in this.edges){
+            this.edges[eKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        for(let fKey in this.faces){
+            this.faces[fKey].value = valuesArray[idx];
+            idx += 1;
+        }
+        this.draw();
+
+    }
+
     randomizeValues(){
         let valuesArray = [];
         for(let i=1; i<= 100; i++){
@@ -135,6 +154,7 @@ class DMT3{
             idx += 1;
         }
         this.draw();
+        this.valuesArray = valuesArray;
     }
 
     shuffleArray(array) {
@@ -143,43 +163,6 @@ class DMT3{
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
-
-    randomize_a_number(){
-        // range: 0-100
-
-    }
-
-    // recognizeIdenticalVertices(vertices){ // currently, only recognize by function values
-    //     console.log(vertices)
-    //     let vertices_dict = {};
-    //     vertices.forEach(v=>{
-    //         if(v.value in vertices_dict){
-    //             vertices_dict[v.value].push(v);
-    //         } else{
-    //             vertices_dict[v.value] = [v];
-    //         }
-    //     })
-    //     console.log(vertices_dict)
-    //     for(let vf in vertices_dict){
-    //         let arms_array = [];
-    //         vertices[vf].forEach(v=>{
-    //             v.arms.forEach(e=>{
-    //                 if(arms_array.indexOf(e)===-1){
-    //                     arms_array.push(e);
-    //                 }
-    //             })
-    //         })
-    //         vertices[vf].forEach(v=>{
-    //             v.arms = arms_array;
-    //         })
-    //     }
-
-
-    // }
-
-    // recognizeIdenticalFaces(faces){
-
-    // }
 
     updateStratification(){
         this.markStratification = true;
@@ -450,17 +433,18 @@ class DMT3{
         let possible_vlocation = {"x":vePair2Remove[0].xcoord,"y":vePair2Remove[0].ycoord};
         // remove vertex
         let vKey = 'v'+vePair2Remove[0].id;
-        this.vertices[vKey].coface.forEach(eKey=>{
-            this.edges[eKey].face.splice(this.edges[eKey].face.indexOf(vKey),1);
-        })
         let edge2reassign = [];
         let face2reassign = []
         this.vertices[vKey].arms.forEach(e=>{
-            if(e.start.id === vePair2Remove[0].id){
-                e.start = undefined;
+            if(e.start){
+                if(e.start.id === vePair2Remove[0].id){
+                    e.start = undefined;
+                }
             }
-            if(e.end.id === vePair2Remove[0].id){
-                e.end = undefined;
+            if(e.end){
+                if(e.end.id === vePair2Remove[0].id){
+                    e.end = undefined;
+                }
             }
             if(e.id != vePair2Remove[1].id){
                 edge2reassign.push(e);
@@ -484,12 +468,6 @@ class DMT3{
 
         // remove edge
         let eKey = 'e'+vePair2Remove[1].id;
-        this.edges[eKey].face.forEach(vKey=>{
-            this.vertices[vKey].coface.splice(this.vertices[vKey].coface.indexOf(eKey),1);
-        })
-        this.edges[eKey].coface.forEach(fKey=>{
-            this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
-        })
         let vertex2reassign; // an edge only connects with 2 vertices
         // let face2reassign;
         if(this.edges[eKey].start!=undefined){
@@ -550,9 +528,6 @@ class DMT3{
         let fKey = 'f'+efPair2Remove[1].id;
         let edge2reassign=[];
         let vertex2reassign = [];
-        this.faces[fKey].face.forEach(eKey=>{
-            this.edges[eKey].coface.splice(this.edges[eKey].coface.indexOf(fKey),1)
-        })
         this.faces[fKey].line.forEach(e=>{
             for(let i=0; i<e.wings.length; i++){
                 if(this.faces[fKey].id === e.wings[i].id){
@@ -575,12 +550,6 @@ class DMT3{
 
         // remove edge
         let eKey = 'e'+efPair2Remove[0].id;
-        this.edges[eKey].face.forEach(vKey=>{
-            this.vertices[vKey].coface.splice(this.vertices[vKey].coface.indexOf(eKey),1);
-        })
-        this.edges[eKey].coface.forEach(fKey=>{
-            this.faces[fKey].face.splice(this.faces[fKey].face.indexOf(eKey),1);
-        })
         let face2reassign; // one edge can at most connect to 2 faces
         let v_start = this.edges[eKey].start;
         for(let i=0; i<v_start.arms.length; i++){
@@ -623,7 +592,6 @@ class DMT3{
     }
 
     veReassignCoord(vertex2reassign, edge2reassign, face2reassign, possible_vlocation){
-        console.log("f2reassign", face2reassign)
         edge2reassign.forEach(e=>{
             if(e.start === undefined){
                 e.start = vertex2reassign;
@@ -1063,7 +1031,7 @@ class DMT3{
     }
 
     vePairReorder(){
-        console.log("ve reordering")
+        // console.log("ve reordering")
         let vePair_freeEdge = [];
         let vePair_non_freeEdge = [];
         this.noncriticalPair.vePair.forEach(pair=>{
@@ -1073,7 +1041,6 @@ class DMT3{
             } else{ vePair_freeEdge.push(pair); }
         })
         this.noncriticalPair.vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
-        console.log(this.noncriticalPair.vePair)
     }
 
     efPairReorder(){
@@ -1416,6 +1383,7 @@ class DMT3{
 
             //check self-looping
             if (startx == endx && starty == endy) {
+                console.log("e1",e1)
 
                 //append path and textcoord for self-looping
                 let assistx = startx;
