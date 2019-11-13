@@ -133,7 +133,7 @@ function exp8() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_try.off");
+    oReq.open("GET", "data/dsmt_exp5.off");
     oReq.send();
     d3.select("#randomize_values").style("visibility","visible");
 }

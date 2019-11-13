@@ -1368,6 +1368,8 @@ class DMT3{
 
         this.collinearEdges = [];
         this.collinearEdges_Idx = [];
+        this.selfLoopVertex = {};
+        this.selfLoopDup = {"1":{"x":0,"y":-160}, "2":{"x":80,"y":0},"3":{"x":-80,"y":0}};
         for (let i = 0; i < edgesArray.length; i++) {
             let e1 = edgesArray[i];
 
@@ -1383,11 +1385,21 @@ class DMT3{
 
             //check self-looping
             if (startx == endx && starty == endy) {
-                console.log("e1",e1)
+                console.log(e1)
+                let vKey = 'v'+e1.start.id;
 
                 //append path and textcoord for self-looping
                 let assistx = startx;
-                let assisty = starty + 80;
+                let assisty = starty+80;
+
+                if(vKey in this.selfLoopVertex){
+                    assistx += this.selfLoopDup[this.selfLoopVertex[vKey]].x;
+                    assisty += this.selfLoopDup[this.selfLoopVertex[vKey]].y;
+                    this.selfLoopVertex[vKey] += 1;
+                } else{
+                    this.selfLoopVertex[vKey] = 1;
+                }
+                
                 let pivotcx = (startx+assistx) / 2;
                 let pivotcy = (starty+assisty) / 2;
                 let pivotpx = startx - pivotcx;
@@ -1397,13 +1409,14 @@ class DMT3{
                 let x2 = pivotpy + pivotcx;
                 let y2 = -pivotpx + pivotcy;
                 let r = Math.sqrt(Math.pow(x1-startx,2)+Math.pow(y1-starty,2));
-
                 let path = d3.path();
                 path.moveTo(startx, starty);
                 path.arcTo(x1, y1, assistx, assisty, r);
                 path.arcTo(x2, y2, endx, endy, r)
 
                 e1.d = path.toString();
+                console.log(e1.d)
+
                 e1.textcoord = [assistx, assisty]
             } else {
                 //append path and textcoord for straight line
@@ -1418,24 +1431,28 @@ class DMT3{
                     e1.d = path.toString();
                 }
                 e1.textcoord = [cx,cy];
-            }
 
-            //check collinear
-            let temp = [e1];
-            for (let j = i + 1; j < edgesArray.length; j++) {
-                let e2 = edgesArray[j]
-                if (this.exist(e2, this.collinearEdges))
-                    continue;
-                if ((e1.start.id == e2.start.id && e1.end.id == e2.end.id) ||
-                    (e1.start.id == e2.end.id && e1.end.id == e2.start.id)){
-                    temp.push(e2);
+                //check collinear
+                let temp = [e1];
+                for (let j = i + 1; j < edgesArray.length; j++) {
+                    let e2 = edgesArray[j]
+                    if (this.exist(e2, this.collinearEdges))
+                        continue;
+                    if ((e1.start.id == e2.start.id && e1.end.id == e2.end.id) ||
+                        (e1.start.id == e2.end.id && e1.end.id == e2.start.id)){
+                        temp.push(e2);
+                    }
+                }
+                if (temp.length > 1) {
+                    this.collinearEdges.push(temp);
                 }
             }
-            if (temp.length > 1) {
-                this.collinearEdges.push(temp);
-            }
+
+            
 
         }
+
+        console.log(this.collinearEdges)
 
         for (let group of this.collinearEdges) {
             for (let i = 0; i < group.length; i++) {
@@ -1635,6 +1652,10 @@ class DMT3{
             return true;
         } else { return false;}
     
+    }
+
+    getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
     }
 
 
