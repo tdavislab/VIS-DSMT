@@ -634,6 +634,7 @@ class DMT3{
             f.point = point;
             f.pointIndex = pointIndex;
             this.faceReorderVertex(f);
+            vertex2reassign.wings.push(f);
         })     
 
     }
