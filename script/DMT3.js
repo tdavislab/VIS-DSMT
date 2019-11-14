@@ -64,18 +64,6 @@ class DMT3{
             .x(d=>this.xScale(d.x))
             .y(d=>this.yScale(d.y))
             .curve(d3.curveCardinal.tension(-1));
-        
-        //define arrow head
-        this.canvas.append('svg:defs').append('svg:marker')
-            .attr('id', 'arrowhead')
-            .attr('refX', 3)
-            .attr('refY', 3)
-            .attr('markerWidth', 15)
-            .attr('markerHeight', 15)
-            .attr('orient', 'auto')
-            .append('path')
-            .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-            .attr('class', 'arrowHead');
 
         this.markStratification = false;
     }
@@ -83,6 +71,7 @@ class DMT3{
     clear() {
         this.table.selectAll('li').remove();
         this.canvas.selectAll('g').remove();
+        this.canvas.selectAll('defs').remove();
         d3.select("#table3_stratification").selectAll('li').remove();
 
         this.fgroup = this.canvas.append('g')
@@ -102,6 +91,17 @@ class DMT3{
             .attr('id', 'etgroup');
         this.vtgroup = this.canvas.append('g')
             .attr('id', 'vtgroup');
+        //define arrow head
+        this.canvas.append('svg:defs').append('svg:marker')
+        .attr('id', 'arrowhead')
+        .attr('refX', 3)
+        .attr('refY', 3)
+        .attr('markerWidth', 15)
+        .attr('markerHeight', 15)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+        .attr('class', 'arrowHead');
     }
 
     draw() {
@@ -633,7 +633,9 @@ class DMT3{
             })
             f.point = point;
             f.pointIndex = pointIndex;
+            this.faceReorderVertex(f);
         })     
+
     }
 
     findPossiblePosition(e, vlocation){
@@ -664,61 +666,6 @@ class DMT3{
                 console.log(e)
                 e.wings.push(face2reassign);
             })
-            let line_copy = [...face2reassign.line];
-            let pointIndex = [];
-            let lineIndex = [];
-            let e = line_copy[0];
-            let tmpIdx = 0
-            // while(line_copy.length>0 && tmpIdx < 10){
-            //     lineIndex.push(e.id);
-            //     // if(pointIndex.indexOf(e.start.id)===-1){
-            //     //     pointIndex.push(e.start.id);
-            //     // }
-            //     // if(pointIndex.indexOf(e.end.id)===-1){
-            //     //     pointIndex.push(e.end.id);
-            //     // }
-                
-                
-            //     for(let i=0;i<line_copy.length;i++){
-            //         if(line_copy[i].id === e.id){
-            //             line_copy.splice(i,1);
-            //         }
-            //     }
-            //     for(let i=0;i<line_copy.length;i++){
-            //         let e2 = line_copy[i];
-            //         if(e.end.id === e2.start.id || e.end.id === e2.end.id){
-            //             pointIndex.push(e.start.id);
-
-            //             // if(pointIndex.indexOf(e.start.id)===-1){
-            //             //     pointIndex.push(e.start.id);
-            //             // }
-            //             // if(pointIndex.indexOf(e.end.id)===-1){
-            //             //     pointIndex.push(e.end.id);
-            //             // }
-            //         } else if(e.start.id === e2.start.id || e.start.id === e2.end.id){
-            //             pointIndex.push(e.end.id);
-            //             // if(pointIndex.indexOf(e.end.id)===-1){
-            //             //     pointIndex.push(e.end.id);
-            //             // }
-            //             // if(pointIndex.indexOf(e.start.id)===-1){
-            //             //     pointIndex.push(e.start.id);
-            //             // }   
-            //         }
-            //         e = e2;
-            //     }
-                // if(pointIndex.indexOf(e.end.id)===-1){
-                //     pointIndex.push(e.end.id);
-                // }
-                // if(pointIndex.indexOf(e.start.id)===-1){
-                //     pointIndex.push(e.start.id);
-                // }   
-                // // line_copy.forEach(e2=>{
-                // //     if(e2.end.id === e.end.id || e2.start.id === e.end.id || e2.start.id === e.start.id || e2.end.id === e.start.id){
-                // //         e = e2;
-                // //     }
-                // // })
-            // }
-            
             face2reassign.line.forEach(e=>{
                 lineIndex.push(e.id);
                 if(pointIndex.indexOf(e.start.id)===-1){
@@ -736,6 +683,7 @@ class DMT3{
             face2reassign.point = point;
             face2reassign.pointIndex = pointIndex;
             face2reassign.lineIndex = lineIndex;
+            this.faceReorderVertex(face2reassign);
         }
         vertex2reassign.forEach(v=>{
             let wings = [];
@@ -748,6 +696,46 @@ class DMT3{
             })
             v.wings = wings;
         })
+    }
+
+    faceReorderVertex(f){
+        let line_copy = [...f.line];
+        let step = 0;
+        let point = [];
+        let pointIndex = [];
+        let e1 = line_copy[0];
+        let p = e1.start;
+        point.push(p);
+        pointIndex.push(p.id);
+        line_copy.splice(0,1);
+        while(line_copy.length!=0 && step < 50){
+            for(let i=0; i<line_copy.length; i++){
+                let e2 = line_copy[i];
+                if(e2.id != e1.id){
+                    if(p.id === e2.start.id){
+                        p = e2.end;
+                        e1 = e2;
+                        point.push(p);
+                        pointIndex.push(p.id);
+                        line_copy.splice(i,1);
+                        break;
+                    }
+                    if(p.id === e2.end.id){
+                        p = e2.start;
+                        e1 = e2;
+                        point.push(p);
+                        pointIndex.push(p.id);
+                        line_copy.splice(i,1);
+                        break;
+                    }
+
+                }
+            }
+            step += 1;
+
+        }
+        f.point = point;
+        f.pointIndex = pointIndex;
     }
 
     reassignTopo(){
@@ -798,7 +786,13 @@ class DMT3{
             .attr('id', function (d) {
                 return 'f' + d.id;
             })
-            .attr("opacity",1)
+            .attr("opacity",0.5)
+            .on("mouseover",(d)=>{
+                d3.select("#f"+d.id).attr("opacity","1")
+            })
+            .on("mouseout",(d)=>{
+                d3.select("#f"+d.id).attr("opacity","0.5")
+            })
 
         let fts = this.ftgroup.selectAll('text')
             .data(facesArray);

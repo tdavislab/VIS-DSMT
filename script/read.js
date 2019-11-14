@@ -13,8 +13,8 @@ class Read {
     {
         let lines = off.split('\n');
         if(lines[0]!="OFF"){
-            alert("Format Error")
-            return
+            alert("Format Error");
+            return;
         }
         let stats = lines[1].split(' ');
 
