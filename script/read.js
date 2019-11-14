@@ -12,6 +12,10 @@ class Read {
     readOFF(off)
     {
         let lines = off.split('\n');
+        if(lines[0]!="OFF"){
+            alert("Format Error")
+            return
+        }
         let stats = lines[1].split(' ');
 
         this.numVertices = parseInt(stats[0]);
