@@ -422,13 +422,16 @@ class DMT3{
     }
 
     vePairRemove(){
-        if(this.noncriticalPair.efPair.length > 0){ // efpair should be removed first, otherwise the system crushes.
-            alert("Please remove Edge-Face pairs first!")
-            return
+        console.log(this.vePair_freeEdge)
+        if((this.noncriticalPair.efPair.length > 0) && ((this.efPair_freeface.length != 0) || (this.vePair_freeEdge.length === 0))){ // efpair should be removed first, otherwise the system crushes.
+            alert("Please remove Edge-Face pairs first!");
+            return;
         }
         if(this.noncriticalPair.vePair.length === 0){
-            return
+            alert("No vertex-edge pair to remove!");
+            return;
         }
+        
         let vePair2Remove = this.noncriticalPair.vePair[0];
         let possible_vlocation = {"x":vePair2Remove[0].xcoord,"y":vePair2Remove[0].ycoord};
         // remove vertex
@@ -518,7 +521,13 @@ class DMT3{
 
     efPairRemove(){
         if(this.noncriticalPair.efPair.length === 0){
+            alert("No edge-face pair to remove!")
             return
+        }
+        if((this.efPair_freeface.length === 0) && (this.vePair_freeEdge.length > 0)){
+            // if there is no free face, remove free edges first
+            alert("Please remove edge-face pairs with free edges first!");
+            return;
         }
         let efPair2Remove = this.noncriticalPair.efPair[0];
         console.log("edge2remove", efPair2Remove[0])
@@ -667,6 +676,8 @@ class DMT3{
                 console.log(e)
                 e.wings.push(face2reassign);
             })
+            let lineIndex = [];
+            let pointIndex = [];
             face2reassign.line.forEach(e=>{
                 lineIndex.push(e.id);
                 if(pointIndex.indexOf(e.start.id)===-1){
@@ -996,6 +1007,7 @@ class DMT3{
     }
 
     findPair(){
+        console.log("finding non-critical pairs")
         let vePair_freeEdge = []; // free edge: not connect with a face
         let vePair_non_freeEdge = [];
         let efPair_freeface = []; // free face
@@ -1004,7 +1016,7 @@ class DMT3{
             if(this.vertices[vKey].uCount===1){
                 let v = this.vertices[vKey];
                 let e = this.edges[this.vertices[vKey].uCount_detail[0]];
-                if(e.wings > 0){
+                if(e.wings.length > 0){
                     vePair_non_freeEdge.push([v,e]);
                 } else { vePair_freeEdge.push([v,e]); }
             }
@@ -1021,8 +1033,11 @@ class DMT3{
         // re-order vePair and efPair
         let vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
         let efPair = efPair_freeface.concat(efPair_non_freeface);
-        console.log("vepair",vePair)
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
+        this.vePair_freeEdge = vePair_freeEdge;
+        console.log(this.vePair_freeEdge )
+        this.efPair_freeface = efPair_freeface;
+        console.log("noncritical pairs", this.noncriticalPair)
     }
 
     vePairReorder(){
