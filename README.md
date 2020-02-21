@@ -1,10 +1,16 @@
 # Visual Demo of Discrete Stratified Morse Theory
 
-By Youjia Zhou, Yulong Liang and Bei Wang
+By [Youjia Zhou](https://github.com/zhou325), 
+[Yulong Liang](https://github.com/leong1016) and [Bei Wang](https://github.com/beiwphillips).
 
 ## Overview
 
 This is a demo that implements algorithms for discrete stratification Morse theory (DSMT).
+
+The main features of our system:
+- Display stratification
+- Mark violators/ criticals/ non-critical pairs
+- Remove non-critical pairs
 
 <!-- To see a live demo, go to https://vis-dsmt.herokuapp.com/. -->
 
@@ -25,7 +31,7 @@ Kevin Knudson and Bei Wang.
 International Symposium on Computational Geometry (SOCG), 2018.
 
 ## Working Demo
-To see a live demo, go to 
+To see a live demo, go to: 
 
 https://vis-dsmt.herokuapp.com/
 
@@ -36,7 +42,7 @@ It runs on most modern web browsers. We suggest you use Google Chrome.
 git clone git@github.com:beiwphillips/VIS-DSMT.git
 ```
 
-## Running
+## Execution
 ```bash
 cd VIS-DSMT
 bash run.sh
@@ -46,9 +52,7 @@ bash run.sh
 You can view the page at http://0.0.0.0:8080/.
 
 ## Importing a new example
+Users can importing a new example with specific data format.
 
-
-## Main features
-- Display stratification
-- Mark violators/ criticals/ non-critical pairs
-- Remove non-critical pairs
+The imput file should be a TXT file of the following format.
+![data format](img/data.png)
