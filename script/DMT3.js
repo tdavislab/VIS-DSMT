@@ -423,7 +423,7 @@ class DMT3{
 
     vePairRemove(){
         console.log(this.vePair_freeEdge)
-        if((this.noncriticalPair.efPair.length > 0) && ((this.efPair_freeface.length != 0) || (this.vePair_freeEdge.length === 0))){ // efpair should be removed first, otherwise the system crushes.
+        if((this.noncriticalPair.efPair.length > 0) && ((this.efPair_freeface.length != 0) || (this.vePair_freeEdge.length === 0 && this.vePair_freeVetex.length===0))){ // efpair should be removed first, otherwise the system crushes.
             alert("Please remove Edge-Face pairs first!");
             return;
         }
@@ -524,7 +524,7 @@ class DMT3{
             alert("No edge-face pair to remove!")
             return
         }
-        if((this.efPair_freeface.length === 0) && (this.vePair_freeEdge.length > 0)){
+        if((this.efPair_freeface.length === 0) && (this.vePair_freeEdge.length > 0 || this.vePair_freeVetex.length > 0)){
             // if there is no free face, remove free edges first
             alert("Please remove edge-face pairs with free edges first!");
             return;
@@ -1009,6 +1009,7 @@ class DMT3{
     findPair(){
         console.log("finding non-critical pairs")
         let vePair_freeEdge = []; // free edge: not connect with a face
+        let vePair_freeVertex = [];
         let vePair_non_freeEdge = [];
         let efPair_freeface = []; // free face
         let efPair_non_freeface = [];
@@ -1016,9 +1017,14 @@ class DMT3{
             if(this.vertices[vKey].uCount===1){
                 let v = this.vertices[vKey];
                 let e = this.edges[this.vertices[vKey].uCount_detail[0]];
-                if(e.wings.length > 0){
+                if(v.arms.length === 1){
+                    vePair_freeVertex.push([v,e]);
+                } else if(e.wings.length === 0){
+                    vePair_freeEdge.push([v,e]);
+                } else {
                     vePair_non_freeEdge.push([v,e]);
-                } else { vePair_freeEdge.push([v,e]); }
+                }
+
             }
         }
         for(let eKey in this.edges){
@@ -1031,10 +1037,11 @@ class DMT3{
             }
         }
         // re-order vePair and efPair
-        let vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
+        let vePair = (vePair_freeVertex.concat(vePair_freeEdge)).concat(vePair_non_freeEdge);
         let efPair = efPair_freeface.concat(efPair_non_freeface);
         this.noncriticalPair = {'vePair': vePair, 'efPair': efPair};
         this.vePair_freeEdge = vePair_freeEdge;
+        this.vePair_freeVetex = vePair_freeVertex;
         console.log(this.vePair_freeEdge )
         this.efPair_freeface = efPair_freeface;
         console.log("noncritical pairs", this.noncriticalPair)
@@ -1042,15 +1049,21 @@ class DMT3{
 
     vePairReorder(){
         // console.log("ve reordering")
+        let vePair_freeVertex = [];
         let vePair_freeEdge = [];
         let vePair_non_freeEdge = [];
         this.noncriticalPair.vePair.forEach(pair=>{
+            let v = pair[0]
             let e = pair[1];
-            if(e.wings.length>0){
-                vePair_non_freeEdge.push(pair);
-            } else{ vePair_freeEdge.push(pair); }
+            if(v.arms.length === 1){
+                vePair_freeVertex.push([v,e]);
+            } else if(e.wings.length === 0){
+                vePair_freeEdge.push([v,e]);
+            } else {
+                vePair_non_freeEdge.push([v,e]);
+            }
         })
-        this.noncriticalPair.vePair = vePair_freeEdge.concat(vePair_non_freeEdge);
+        this.noncriticalPair.vePair = (vePair_freeVertex.concat(vePair_freeEdge)).concat(vePair_non_freeEdge);
     }
 
     efPairReorder(){
@@ -1465,6 +1478,13 @@ class DMT3{
         console.log(this.collinearEdges)
 
         for (let group of this.collinearEdges) {
+            let edge0 = group[0];
+            let edge1 = group[1];
+            let edge0_y = d3.select("#e"+edge0.id).node().getBBox().y;
+            let edge1_y = d3.select("#e"+edge1.id).node().getBBox().y;
+            if(edge0_y > edge1_y){
+                group = [edge1, edge0];
+            }
             for (let i = 0; i < group.length; i++) {
                 let m = group[i];
                 let startx, starty, endx, endy = 0;
@@ -1484,8 +1504,8 @@ class DMT3{
                 let px = startx - cx
                 let py = starty - cy
                 if (i == 0) {
-                    let x = -py + cx;
-                    let y = px + cy;
+                    let x = py + cx;
+                    let y = -px + cy;
                     let r = Math.sqrt(Math.pow(x - startx, 2) + Math.pow(y - starty, 2));
                     let path = d3.path();
                     path.moveTo(startx, starty);
@@ -1493,8 +1513,8 @@ class DMT3{
                     m.d = path.toString();
                     m.textcoord = [(x + cx) / 2, (y + cy) / 2];
                 } else if (i == 1) {
-                    let x = py + cx;
-                    let y = -px + cy;
+                    let x = -py + cx;
+                    let y = px + cy;
                     let r = Math.sqrt(Math.pow(x - startx, 2) + Math.pow(y - starty, 2));
                     let path = d3.path();
                     path.moveTo(startx, starty);

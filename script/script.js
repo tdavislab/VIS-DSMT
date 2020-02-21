@@ -47,6 +47,7 @@ function removeVEPairs() {
 }
 
 function rollback() {
+    valuesArray = undefined;
     if(dmt3.valuesArray){
         valuesArray = dmt3.valuesArray;
     }
@@ -64,6 +65,7 @@ function exp5() {
     });
     oReq.open("GET", "data/dmt_sailboat.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp6() {
@@ -74,6 +76,7 @@ function exp6() {
     });
     oReq.open("GET", "data/dmt_new_1.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp7() {
@@ -84,6 +87,7 @@ function exp7() {
     });
     oReq.open("GET", "data/dmt_new_2.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp1() {
@@ -94,6 +98,7 @@ function exp1() {
     });
     oReq.open("GET", "data/dsmt_figure2.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp2() {
@@ -104,6 +109,7 @@ function exp2() {
     });
     oReq.open("GET", "data/dsmt_figure3.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp3() {
@@ -115,6 +121,7 @@ function exp3() {
     oReq.open("GET", "data/dsmt_figure4.off");
     // oReq.open("GET", "data/dsmt_try.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp4() {
@@ -125,6 +132,7 @@ function exp4() {
     });
     oReq.open("GET", "data/dsmt_figure6.off");
     oReq.send();
+    d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp8() {
