@@ -12,7 +12,7 @@ The main features of our system:
 - Mark violators/ criticals/ non-critical pairs.
 - Perform simplification by removing non-critical pairs.
 
-![Screenshot of demo](teaser.png)
+![Screenshot of demo](img/teaser.png)
 
 <!-- To see a live demo, go to https://vis-dsmt.herokuapp.com/. -->
 
