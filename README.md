@@ -8,9 +8,9 @@ By [Youjia Zhou](https://github.com/zhou325),
 This is a demo that implements algorithms for discrete stratification Morse theory (DSMT).
 
 The main features of our system:
-- Display stratification
+- Given a 2-dimensional simplicial complex, construct the discrete stratified Morse function and demonstrate the stratification
 - Mark violators/ criticals/ non-critical pairs
-- Remove non-critical pairs
+- Perform simplification by removing non-critical pairs
 
 <!-- To see a live demo, go to https://vis-dsmt.herokuapp.com/. -->
 
@@ -55,4 +55,11 @@ You can view the page at http://0.0.0.0:8080/.
 Users can importing a new example with specific data format.
 
 The imput file should be a TXT file of the following format.
+
 ![data format](img/data.png)
+
+- The second line specifies the number of vertices, faces and edges.
+
+- Starting from the third line, each line specifies the position and function value of a simplex, in order of vertices, faces and edges.
+
+- For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as th index of the vertices on its boundary.
