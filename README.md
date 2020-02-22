@@ -71,4 +71,4 @@ The imput file should be a TXT file of the following format.
 ## Implementation Details
 Our system is web-based and can be accessed from any modern web-browser (tested using Google Chrome). 
 
-The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection \texttt{D3.js} is used for redering SVGs and providing interactive visualization.
+The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection *D3.js* is used for redering SVGs and providing interactive visualization.
