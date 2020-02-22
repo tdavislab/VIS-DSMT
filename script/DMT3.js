@@ -526,7 +526,7 @@ class DMT3{
         }
         if((this.efPair_freeface.length === 0) && (this.vePair_freeEdge.length > 0 || this.vePair_freeVetex.length > 0)){
             // if there is no free face, remove free edges first
-            alert("Please remove edge-face pairs with free edges first!");
+            alert("Please remove vertex-edge pairs with free edges first!");
             return;
         }
         let efPair2Remove = this.noncriticalPair.efPair[0];
