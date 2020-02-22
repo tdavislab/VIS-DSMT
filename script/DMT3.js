@@ -809,12 +809,12 @@ class DMT3{
             .attr('id', function (d) {
                 return 'f' + d.id;
             })
-            .attr("opacity",0.5)
+            .attr("opacity",0.3)
             .on("mouseover",(d)=>{
                 d3.select("#f"+d.id).attr("opacity","1")
             })
             .on("mouseout",(d)=>{
-                d3.select("#f"+d.id).attr("opacity","0.5")
+                d3.select("#f"+d.id).attr("opacity","0.3")
             })
 
         let fts = this.ftgroup.selectAll('text')

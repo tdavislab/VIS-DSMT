@@ -66,7 +66,7 @@ The imput file should be a TXT file of the following format.
 
 - For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as th index of the vertices on its boundary.
 
-- The imported simplical complex is expected to be some triangulation of a surface.
+- The imported example is expected to be some planar geometric 2-dimensional simplicial complex (e.g., a planar triangulation).
 
 ## Implementation Details
 Our system is web-based and can be accessed from any modern web-browser (tested using Google Chrome). 
