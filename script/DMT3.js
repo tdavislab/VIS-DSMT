@@ -68,6 +68,17 @@ class DMT3{
         this.markStratification = false;
     }
 
+    // saveConfig(){
+    //     let config = "OFF\n";
+    //     let vlength = Object.keys(this.vertices).length;
+    //     let elength = Object.keys(this.edges).length;
+    //     let flength = Object.keys(this.faces).length;
+    //     let secondLine = toString(vlength).concat(toString(elength)).concat(toString(flength))
+    //     config.concat(toString)
+
+
+    // }
+
     clear() {
         this.table.selectAll('li').remove();
         this.canvas.selectAll('g').remove();

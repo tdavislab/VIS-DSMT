@@ -4,6 +4,7 @@ let dmt;
 let dmt2;
 let dmt3;
 let valuesArray;
+// let savedConfig
 
 let input = document.getElementById('files');
 input.onchange = function (event) {
@@ -57,6 +58,16 @@ function rollback() {
     }
 }
 
+// function saveConfig() {
+//     savedConfig = dmt3.saveConfig();
+// }
+
+// function retrieveConfig(){
+//     // dmt3.retrieveConfig(savedConfig);
+//     dmt3 = new DMT3(savedConfig.vertices, savedConfig.faces, savedConfig.edges);
+//     dmt3.draw();
+// }
+
 function exp5() {
     let oReq = new XMLHttpRequest();
     oReq.addEventListener("load", function () {
@@ -65,7 +76,7 @@ function exp5() {
     });
     oReq.open("GET", "data/dmt_sailboat.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp6() {
@@ -76,7 +87,7 @@ function exp6() {
     });
     oReq.open("GET", "data/dmt_new_1.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp7() {
@@ -87,7 +98,7 @@ function exp7() {
     });
     oReq.open("GET", "data/dmt_new_2.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp1() {
@@ -98,7 +109,7 @@ function exp1() {
     });
     oReq.open("GET", "data/dsmt_figure2.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp2() {
@@ -109,7 +120,7 @@ function exp2() {
     });
     oReq.open("GET", "data/dsmt_figure3.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp3() {
@@ -121,7 +132,7 @@ function exp3() {
     oReq.open("GET", "data/dsmt_figure4.off");
     // oReq.open("GET", "data/dsmt_try.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp4() {
@@ -132,7 +143,7 @@ function exp4() {
     });
     oReq.open("GET", "data/dsmt_figure6.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","hidden");
+    // d3.select("#randomize_values").style("visibility","hidden");
 }
 
 function exp8() {
@@ -143,7 +154,7 @@ function exp8() {
     });
     oReq.open("GET", "data/dsmt_exp5.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","visible");
+    // d3.select("#randomize_values").style("visibility","visible");
 }
 
 function exp9() {
@@ -154,7 +165,7 @@ function exp9() {
     });
     oReq.open("GET", "data/dsmt_exp6.off");
     oReq.send();
-    d3.select("#randomize_values").style("visibility","visible");
+    // d3.select("#randomize_values").style("visibility","visible");
 }
 
 function handleFileSelect(file)
