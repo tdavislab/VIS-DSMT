@@ -67,3 +67,6 @@ The imput file should be a TXT file of the following format.
 - For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as th index of the vertices on its boundary.
 
 - The imported simplical complex is expected to be some triangulation of a surface.
+
+## Implementation Details
+Our system is web-based and can be accessed from any modern web-browser (tested using Google Chrome). The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection \texttt{D3.js} is used for redering SVGs and providing interactive visualization.
