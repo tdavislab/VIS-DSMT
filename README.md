@@ -1,4 +1,4 @@
-# Visual Demo of Discrete Stratified Morse Theory
+# A Visual Demo of Discrete Stratified Morse Theory
 
 By [Youjia Zhou](https://github.com/zhou325), 
 [Yulong Liang](https://github.com/leong1016) and [Bei Wang](https://github.com/beiwphillips).
