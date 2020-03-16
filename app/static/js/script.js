@@ -74,7 +74,7 @@ function exp5() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dmt_sailboat.off");
+    oReq.open("GET", "../static/uploads/dmt_sailboat.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -85,7 +85,7 @@ function exp6() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dmt_new_1.off");
+    oReq.open("GET", "../static/uploads/dmt_new_1.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -96,7 +96,7 @@ function exp7() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dmt_new_2.off");
+    oReq.open("GET", "../static/uploads/dmt_new_2.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -107,7 +107,7 @@ function exp1() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_figure2.off");
+    oReq.open("GET", "../static/uploads/dsmt_figure2.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -118,7 +118,7 @@ function exp2() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_figure3.off");
+    oReq.open("GET", "../static/uploads/dsmt_figure3.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -129,8 +129,8 @@ function exp3() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_figure4.off");
-    // oReq.open("GET", "data/dsmt_try.off");
+    oReq.open("GET", "../static/uploads/dsmt_figure4.off");
+    // oReq.open("GET", "../static/uploads/dsmt_try.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -141,7 +141,7 @@ function exp4() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_figure6.off");
+    oReq.open("GET", "../static/uploads/dsmt_figure6.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","hidden");
 }
@@ -152,7 +152,7 @@ function exp8() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_exp5.off");
+    oReq.open("GET", "../static/uploads/dsmt_exp5.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","visible");
 }
@@ -163,7 +163,7 @@ function exp9() {
         off = this.responseText;
         initialzeDMT()
     });
-    oReq.open("GET", "data/dsmt_exp6.off");
+    oReq.open("GET", "../static/uploads/dsmt_exp6.off");
     oReq.send();
     // d3.select("#randomize_values").style("visibility","visible");
 }
