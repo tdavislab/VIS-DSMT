@@ -47,11 +47,11 @@ git clone git@github.com:beiwphillips/VIS-DSMT.git
 ## Execution
 ```bash
 cd VIS-DSMT
-bash run.sh
+python3 run.py
 # Hit Ctrl+c to quit
 ```
 
-You can view the page at http://0.0.0.0:8080/.
+You can view the page at http://0.0.0.0:8000/.
 
 ## Importing a new example
 Users can import a new example with specific data format.
