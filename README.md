@@ -12,7 +12,7 @@ The main features of our system:
 - Mark violators/ criticals/ non-critical pairs.
 - Perform simplification by removing non-critical pairs.
 
-![Screenshot of demo](img/teaser_new.png)
+![Screenshot of demo](app/static/assets/teaser_new.png)
 
 <!-- To see a live demo, go to https://vis-dsmt.herokuapp.com/. -->
 
@@ -58,7 +58,7 @@ Users can import a new example with specific data format.
 
 The imput file should be a TXT file of the following format.
 
-![data format](img/data.png)
+![data format](app/static/assets/data.png)
 
 - The second line specifies the number of vertices, faces and edges.
 
@@ -72,3 +72,6 @@ The imput file should be a TXT file of the following format.
 Our system is web-based and can be accessed from any modern web-browser (tested using Google Chrome). 
 
 The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection *D3.js* is used for redering SVGs and providing interactive visualization.
+
+## Acknowledgments
+This work was supported in part by the National Science Foundation (NSF) grants IIS-1513616 and DBI-1661375. We thank Yulong Liang who worked on the first prototype of the visualization.
