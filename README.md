@@ -74,4 +74,6 @@ Our system is web-based and can be accessed from any modern web-browser (tested 
 The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection *D3.js* is used for redering SVGs and providing interactive visualization.
 
 ## Acknowledgments
-This work was supported in part by the National Science Foundation (NSF) grants IIS-1513616 and DBI-1661375. We thank Yulong Liang who worked on the first prototype of the visualization.
+This work was supported in part by the National Science Foundation (NSF) grants IIS-1513616 and DBI-1661375. 
+
+We thank Yulong Liang who worked on the first prototype of the visualization.
