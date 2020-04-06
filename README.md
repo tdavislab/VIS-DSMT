@@ -1,7 +1,7 @@
 # A Visual Demo of Discrete Stratified Morse Theory
 
-By [Youjia Zhou](https://github.com/zhou325), 
-[Yulong Liang](https://github.com/leong1016) and [Bei Wang](https://github.com/beiwphillips).
+By [Youjia Zhou](https://www.sci.utah.edu/people/zhou325.html), 
+[Kevin Knudson](https://people.clas.ufl.edu/kknudson/) and [Bei Wang](http://www.sci.utah.edu/~beiwang/).
 
 ## Overview
 
