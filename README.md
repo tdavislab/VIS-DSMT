@@ -51,7 +51,7 @@ npm start
 # Hit Ctrl+c to quit
 ```
 
-You can view the page at http://0.0.0.0:8000/.
+You can view the page at http://0.0.0.0:3000/.
 
 ## Importing a new example
 Users can import a new example with specific data format.
