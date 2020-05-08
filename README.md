@@ -37,7 +37,7 @@ To see a live demo, go to:
 
 https://vis-dsmt.herokuapp.com/
 
-It runs on most modern web browsers. We suggest you use Google Chrome.
+It runs on most modern web browsers. We suggest you use Google Chro
 
 ## Installation
 ```bash
@@ -58,7 +58,7 @@ Users can import a new example with specific data format.
 
 The imput file should be a TXT file of the following format.
 
-![data format](app/static/assets/data.png)
+![data format](public/img/data.png)
 
 - The second line specifies the number of vertices, faces and edges.
 
