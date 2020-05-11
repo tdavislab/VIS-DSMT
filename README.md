@@ -33,8 +33,15 @@ Kevin Knudson and Bei Wang.
 International Symposium on Computational Geometry (SOCG), 2018.
 
 ## SOCG 2020 Media Exposition: Media Portfolio Download
-Please download the media portfolio (video + software) for SOCG 2020 Media Exposition <a href="/SOCG-Media-Portfolio.zip" download>here</a>.
+Please download the media portfolio (video + software) for SOCG 2020 Media Exposition [here](/SOCG-Media-Portfolio.zip).
 
+## Video
+
+[![Screenshot of video](public/img/video-teaser.png)](https://www.youtube.com/watch?v=z4OmCEq9jqo)
+
+
+## User Manual
+Please download the user manual [here](/DSMT-user-manual.pdf)
 
 ## Working Demo
 To see a live demo, go to: 
@@ -62,13 +69,15 @@ Users can import a new example with specific data format.
 
 The input file should be a TXT file of the following format.
 
-![data format](public/img/data.png)
+<img src="public/img/data-format-new.png" width="50%">
+
+<!-- ![data format](public/img/data-format-new.png = 100x100) -->
 
 - The second line specifies the number of vertices, faces and edges.
 
-- Starting from the third line, each line specifies the position and function value of a simplex, in order of vertices, faces and edges.
+- Starting from the third line, each line specifies the position and function value of a simplex. The order is to specify vertices first,then faces, and then edges.
 
-- For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as the index of the vertices on its boundary.
+-  For vertices, the position is represented as its *x* and *y* coordinates.For edges, the position is represented as the indices of the vertices on its two ends. For faces,the position is represented as the indices of the vertices on its boundary. For example, ifa face is a triangle, the line specifying it will have the form of “*u*, *v*, *w*, *f*”, where *u*, *v*, *w* are the indices of its three vertices, andfis the function value of it.
 
 - The imported example is expected to be some planar geometric 2-dimensional simplicial complex (e.g., a planar triangulation).
 
