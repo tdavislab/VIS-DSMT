@@ -32,6 +32,9 @@ Discrete Stratified Morse Theory: A User's Guide.
 Kevin Knudson and Bei Wang.
 International Symposium on Computational Geometry (SOCG), 2018.
 
+## SOCG 2020 Media Exposition: Media Portfolio Download
+Please download the media portfolio (video + software) for SOCG 2020 Media Exposition [here](SOCG-Media-Portfolio.zip)
+
 ## Working Demo
 To see a live demo, go to: 
 
