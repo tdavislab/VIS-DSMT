@@ -33,7 +33,7 @@ Kevin Knudson and Bei Wang.
 International Symposium on Computational Geometry (SOCG), 2018.
 
 ## SOCG 2020 Media Exposition: Media Portfolio Download
-Please download the media portfolio (video + software) for SOCG 2020 Media Exposition <a href="/SOCG-Media-Portfolio.zip" download>here</a>.
+Please download the media portfolio (video + software) for SOCG 2020 Media Exposition <a href="/" download="SOCG-Media-Portfolio.zip">here</a>.
 
 
 ## Working Demo
