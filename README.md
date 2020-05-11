@@ -37,11 +37,11 @@ To see a live demo, go to:
 
 https://vis-dsmt.herokuapp.com/
 
-It runs on most modern web browsers. We suggest you use Google Chro
+It runs on most modern web browsers. We suggest you use Google Chrome.
 
 ## Installation
 ```bash
-git clone git@github.com:beiwphillips/VIS-DSMT.git
+git clone git@github.com:tdavislab/VIS-DSMT.git
 ```
 
 ## Execution
@@ -56,7 +56,7 @@ You can view the page at http://0.0.0.0:3000/.
 ## Importing a new example
 Users can import a new example with specific data format.
 
-The imput file should be a TXT file of the following format.
+The input file should be a TXT file of the following format.
 
 ![data format](public/img/data.png)
 
@@ -64,14 +64,14 @@ The imput file should be a TXT file of the following format.
 
 - Starting from the third line, each line specifies the position and function value of a simplex, in order of vertices, faces and edges.
 
-- For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as th index of the vertices on its boundary.
+- For vertices, the position is represented as its x and y coordinates. For faces and edges, the position is represented as the index of the vertices on its boundary.
 
 - The imported example is expected to be some planar geometric 2-dimensional simplicial complex (e.g., a planar triangulation).
 
 ## Implementation Details
 Our system is web-based and can be accessed from any modern web-browser (tested using Google Chrome). 
 
-The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection *D3.js* is used for redering SVGs and providing interactive visualization.
+The tool is implemented in HTML, CSS, and JavaScript. The algorithm is implemented in pure JavaScript, and the module collection *D3.js* is used for redenring SVGs and providing interactive visualization.
 
 ## Acknowledgments
 This work was supported in part by the National Science Foundation (NSF) grants IIS-1513616 and DBI-1661375. 
