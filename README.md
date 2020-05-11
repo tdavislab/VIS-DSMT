@@ -41,7 +41,7 @@ Please download the media portfolio (video + software) for SOCG 2020 Media Expos
 
 
 ## User Manual
-Please download the user manual [here](/DSMT-user-manual.pdf)
+Please view the complete user manual [here](/DSMT-user-manual.pdf).
 
 ## Working Demo
 To see a live demo, go to: 
