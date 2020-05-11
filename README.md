@@ -77,7 +77,7 @@ The input file should be a TXT file of the following format.
 
 - Starting from the third line, each line specifies the position and function value of a simplex. The order is to specify vertices first,then faces, and then edges.
 
--  For vertices, the position is represented as its *x* and *y* coordinates.For edges, the position is represented as the indices of the vertices on its two ends. For faces,the position is represented as the indices of the vertices on its boundary. For example, ifa face is a triangle, the line specifying it will have the form of “*u*, *v*, *w*, *f*”, where *u*, *v*, *w* are the indices of its three vertices, andfis the function value of it.
+-  For vertices, the position is represented as its *x* and *y* coordinates.For edges, the position is represented as the indices of the vertices on its two ends. For faces,the position is represented as the indices of the vertices on its boundary. For example, if a face is a triangle, the line specifying it will have the form of “*u*, *v*, *w*, *f*”, where *u*, *v*, *w* are the indices of its three vertices, and f is the function value of it.
 
 - The imported example is expected to be some planar geometric 2-dimensional simplicial complex (e.g., a planar triangulation).
 
