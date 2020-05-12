@@ -37,7 +37,7 @@ Please download the media portfolio (video + software) for SOCG 2020 Media Expos
 
 ## Video
 
-[![Screenshot of video](public/img/video-teaser.png)](https://www.youtube.com/watch?v=XQkkFpobGP8)
+[![Screenshot of video](public/img/video-teaser.png)](https://www.youtube.com/watch?v=5L-SX8z94Fk)
 
 
 ## User Manual
