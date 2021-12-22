@@ -12,7 +12,7 @@ The main features of our system:
 - Mark violators/ criticals/ non-critical pairs.
 - Perform simplification by removing non-critical pairs.
 
-![Screenshot of demo](public/img/teaser1.png)
+![Screenshot of demo](app/static/assets/teaser1.png)
 
 <!-- To see a live demo, go to https://vis-dsmt.herokuapp.com/. -->
 
@@ -37,7 +37,7 @@ Please download the media portfolio (video + software) for SOCG 2020 Media Expos
 
 ## Video
 
-[![Screenshot of video](public/img/video-teaser.png)](https://www.youtube.com/watch?v=5L-SX8z94Fk)
+[![Screenshot of video](app/static/assets/video-teaser.png)](https://www.youtube.com/watch?v=5L-SX8z94Fk)
 
 
 ## User Manual
@@ -58,18 +58,18 @@ git clone git@github.com:tdavislab/VIS-DSMT.git
 ## Execution
 ```bash
 cd VIS-DSMT
-npm start
+python3 run.py
 # Hit Ctrl+c to quit
 ```
 
-You can view the page at http://0.0.0.0:3000/.
+You can view the page at http://0.0.0.0:8000/.
 
 ## Importing a new example
 Users can import a new example with specific data format.
 
 The input file should be a TXT file of the following format.
 
-<img src="public/img/data-format-new.png" width="50%">
+<img src="app/static/assets//data-format-new.png" width="50%">
 
 <!-- ![data format](public/img/data-format-new.png = 100x100) -->
 
