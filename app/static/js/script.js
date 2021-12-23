@@ -4,7 +4,7 @@ let dmt;
 let dmt2;
 let dmt3;
 let valuesArray;
-// let savedConfig
+let savedConfig
 
 let input = document.getElementById('files');
 input.onchange = function (event) {
@@ -58,15 +58,15 @@ function rollback() {
     }
 }
 
-// function saveConfig() {
-//     savedConfig = dmt3.saveConfig();
-// }
+function saveConfig() {
+    savedConfig = dmt3.saveConfig();
+}
 
-// function retrieveConfig(){
-//     // dmt3.retrieveConfig(savedConfig);
-//     dmt3 = new DMT3(savedConfig.vertices, savedConfig.faces, savedConfig.edges);
-//     dmt3.draw();
-// }
+function retrieveConfig(){
+    // dmt3.retrieveConfig(savedConfig);
+    dmt3 = new DMT3(savedConfig.vertices, savedConfig.faces, savedConfig.edges);
+    dmt3.draw();
+}
 
 function exp5() {
     let oReq = new XMLHttpRequest();
