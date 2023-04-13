@@ -43,13 +43,6 @@ Please download the media portfolio (video + software) for SOCG 2020 Media Expos
 ## User Manual
 Please view the complete user manual [here](/DSMT-user-manual.pdf).
 
-## Working Demo
-To see a live demo, go to: 
-
-https://vis-dsmt.herokuapp.com/
-
-It runs on most modern web browsers. We suggest you use Google Chrome.
-
 ## Installation
 ```bash
 git clone git@github.com:tdavislab/VIS-DSMT.git
